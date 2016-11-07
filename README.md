@@ -1,15 +1,17 @@
-# Material Motion Family Direct Manipulation Android
+# Material Motion Direct Manipulation Family
 
 [![Build Status](https://travis-ci.org/material-motion/family-direct-manipulation-android.svg?branch=develop)](https://travis-ci.org/material-motion/family-direct-manipulation-android)
 [![codecov](https://codecov.io/gh/material-motion/family-direct-manipulation-android/branch/develop/graph/badge.svg)](https://codecov.io/gh/material-motion/family-direct-manipulation-android)
 
-The Material Motion Family Direct Manipulation Android repo.
+The Material Motion Direct Manipulation Family repo.
+
+Learn more about the APIs defined in the library by reading our
+[technical documentation](https://jitpack.io/com/github/material-motion/family-direct-manipulation-android/1.0.0/javadoc/) and our
+[Starmap](https://material-motion.gitbooks.io/material-motion-starmap/content/specifications/runtime/).
 
 ## Installation
 
 ### Installation with Jitpack
-
-Use Jitpack to depend on any of our [public releases](https://github.com/material-motion/family-direct-manipulation-android/releases).
 
 Add the Jitpack repository to your project's `build.gradle`:
 
@@ -21,39 +23,17 @@ allprojects {
 }
 ```
 
-When starting out with a project it is likely that you will want to use the
-latest version of the library. Add the dependency to your module's
-`build.gradle`:
+Depend on the [latest version](https://github.com/material-motion/family-direct-manipulation-android/releases) of the library.
+Take care to occasionally [check for updates](https://github.com/ben-manes/gradle-versions-plugin).
 
 ```gradle
 dependencies {
-    compile 'com.github.material-motion:material-motion-family-direct-manipulation-android:+'
-}
-```
-
-Later on in the project you may want to freeze to a specific version of the
-library. This is **highly recommended** because it makes your builds predictable
-and reproducible. Take care to occasionally [check for updates](https://github.com/ben-manes/gradle-versions-plugin).
-
-```gradle
-dependencies {
-    compile 'com.github.material-motion:material-motion-family-direct-manipulation-android:1.0.0'
-}
-```
-
-It is also possible to specify a *dynamic version* range. This is useful to stay
-up to date on a major version, without the risk of new library releases
-introducing breaking changes into your project.
-
-```gradle
-dependencies {
-    compile 'com.github.material-motion:material-motion-family-direct-manipulation-android:1.+'
+    compile 'com.github.material-motion:family-direct-manipulation-android:1.0.0'
 }
 ```
 
 For more information regarding versioning, see:
 
-- [Gradle Documentation on Dynamic Versions](https://docs.gradle.org/current/userguide/dependency_management.html#sub:dynamic_versions_and_changing_modules)
 - [Material Motion Versioning Policies](https://material-motion.gitbooks.io/material-motion-team/content/essentials/core_team_contributors/release_process.html#versioning)
 
 ### Using the files from a folder local to the machine
@@ -63,7 +43,7 @@ with its client project. To add a local dependency on this library, add this
 library's identifier to your project's `local.dependencies`:
 
 ```
-com.github.material-motion:material-motion-family-direct-manipulation-android
+com.github.material-motion:family-direct-manipulation-android
 ```
 
 > Because `local.dependencies` is never to be checked into Version Control
@@ -93,12 +73,17 @@ choose the root `build.gradle` file.
 
 ## Example apps/unit tests
 
-Check out a local copy of the repo to access the Catalog application by running the following
-commands:
+To build the sample application, run the following commands:
 
     git clone https://github.com/material-motion/family-direct-manipulation-android.git
-    cd material-motion-family-direct-manipulation-android
+    cd family-direct-manipulation-android
     gradle installDebug
+
+To run all unit tests, run the following commands:
+
+    git clone https://github.com/material-motion/family-direct-manipulation-android.git
+    cd family-direct-manipulation-android
+    gradle test
 
 ## Guides
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Material Motion Authors. All Rights Reserved.
+ * Copyright 2016-present The Material Motion Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,13 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.material.motion.family.directmanipulation;
 
-package com.google.android.material.motion.family.direct-manipulation;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
-/**
- * Material Motion Family Direct Manipulation Android library class.
- */
-public class Library {
+@RunWith(RobolectricTestRunner.class)
+@Config(constants = BuildConfig.class, sdk = 21)
+public class UnitTests {
 
-  public static final String LIBRARY_NAME = "Material Motion Family Direct Manipulation Android";
+  @Before
+  public void setUp() {
+
+  }
+
+  @Test
+  public void unitTest() {
+
+  }
 }

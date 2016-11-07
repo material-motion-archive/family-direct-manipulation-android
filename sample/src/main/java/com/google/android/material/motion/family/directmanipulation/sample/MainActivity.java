@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Material Motion Authors. All Rights Reserved.
+ * Copyright 2016-present The Material Motion Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.google.android.material.motion.family.directmanipulation.sample;
 
-package com.google.android.material.motion.family.direct-manipulation.sample;
-
-import com.google.android.material.motion.family.direct-manipulation.Library;
+import com.google.android.material.motion.family.directmanipulation.Library;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
 /**
- * Material Motion Family Direct Manipulation Android sample Activity.
+ * Material Motion Direct Manipulation Family sample Activity.
  */
 public class MainActivity extends AppCompatActivity {
 

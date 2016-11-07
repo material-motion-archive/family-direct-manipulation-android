@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Material Motion Authors. All Rights Reserved.
+ * Copyright 2016-present The Material Motion Authors. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.google.android.material.motion.family.direct-manipulation;
-
-import android.app.Application;
-import android.test.ApplicationTestCase;
+package com.google.android.material.motion.family.directmanipulation;
 
 /**
- * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
+ * Material Motion Direct Manipulation Family library class.
  */
-public class ApplicationTest extends ApplicationTestCase<Application> {
+public class Library {
 
-  public ApplicationTest() {
-    super(Application.class);
-  }
+  public static final String LIBRARY_NAME = "Material Motion Direct Manipulation Family";
 }
