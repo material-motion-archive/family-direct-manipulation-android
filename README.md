@@ -1,7 +1,7 @@
 # Material Motion Family Direct Manipulation Android
 
-[![Build Status](https://travis-ci.org/material-motion/material-motion-family-direct-manipulation-android.svg?branch=develop)](https://travis-ci.org/material-motion/material-motion-family-direct-manipulation-android)
-[![codecov](https://codecov.io/gh/material-motion/material-motion-family-direct-manipulation-android/branch/develop/graph/badge.svg)](https://codecov.io/gh/material-motion/material-motion-family-direct-manipulation-android)
+[![Build Status](https://travis-ci.org/material-motion/family-direct-manipulation-android.svg?branch=develop)](https://travis-ci.org/material-motion/family-direct-manipulation-android)
+[![codecov](https://codecov.io/gh/material-motion/family-direct-manipulation-android/branch/develop/graph/badge.svg)](https://codecov.io/gh/material-motion/family-direct-manipulation-android)
 
 The Material Motion Family Direct Manipulation Android repo.
 
@@ -9,7 +9,7 @@ The Material Motion Family Direct Manipulation Android repo.
 
 ### Installation with Jitpack
 
-Use Jitpack to depend on any of our [public releases](https://github.com/material-motion/material-motion-family-direct-manipulation-android/releases).
+Use Jitpack to depend on any of our [public releases](https://github.com/material-motion/family-direct-manipulation-android/releases).
 
 Add the Jitpack repository to your project's `build.gradle`:
 
@@ -76,7 +76,7 @@ For each local dependency listed, you *must* run `gradle install` from its
 project root every time you make a change to it. That command will publish your
 latest changes to the local maven repository. If your local dependencies have
 local dependencies of their own, you must `gradle install` them as well. See
-[Issue #16](https://github.com/material-motion/material-motion-runtime-android/issues/16).
+[Issue #16](https://github.com/material-motion/runtime-android/issues/16).
 
 You must `gradle clean` your project every time you add or remove a local
 dependency.
@@ -96,7 +96,7 @@ choose the root `build.gradle` file.
 Check out a local copy of the repo to access the Catalog application by running the following
 commands:
 
-    git clone https://github.com/material-motion/material-motion-family-direct-manipulation-android.git
+    git clone https://github.com/material-motion/family-direct-manipulation-android.git
     cd material-motion-family-direct-manipulation-android
     gradle installDebug
 
@@ -113,7 +113,7 @@ commands:
 
 We welcome contributions!
 
-Check out our [upcoming milestones](https://github.com/material-motion/material-motion-family-direct-manipulation-android/milestones).
+Check out our [upcoming milestones](https://github.com/material-motion/family-direct-manipulation-android/milestones).
 
 Learn more about [our team](https://material-motion.gitbooks.io/material-motion-team/content/),
 [our community](https://material-motion.gitbooks.io/material-motion-team/content/community/),
