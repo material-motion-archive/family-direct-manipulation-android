@@ -15,23 +15,21 @@
  */
 package com.google.android.material.motion.family.directmanipulation;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
+import com.google.android.material.motion.family.directmanipulation.GestureRecognizer.GestureStateChangeListener;
+import com.google.common.collect.Lists;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = 21)
-public class UnitTests {
+import java.util.List;
 
-  @Before
-  public void setUp() {
+import static com.google.android.material.motion.family.directmanipulation.GestureRecognizer.POSSIBLE;
 
-  }
+/**
+ * A GestureStateChangeListener that tracks the state changes. Useful for tests.
+ */
+public class TrackingGestureStateChangeListener implements GestureStateChangeListener {
+  List<Integer> states = Lists.newArrayList(POSSIBLE);
 
-  @Test
-  public void unitTest() {
-
+  @Override
+  public void onStateChanged(GestureRecognizer gestureRecognizer) {
+    states.add(gestureRecognizer.getState());
   }
 }

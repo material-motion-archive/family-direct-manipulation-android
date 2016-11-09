@@ -15,10 +15,22 @@
  */
 package com.google.android.material.motion.family.directmanipulation;
 
-/**
- * Material Motion Direct Manipulation Family library class.
- */
-public class Library {
+import com.google.android.material.motion.runtime.PerformerFeatures;
+import com.google.android.material.motion.runtime.Plan;
 
-  public static final String LIBRARY_NAME = "Material Motion Direct Manipulation Family";
+/**
+ * Base abstract class for all gesture plans.
+ */
+public abstract class GesturePlan extends Plan {
+
+  final GestureRecognizer gestureRecognizer;
+
+  GesturePlan(GestureRecognizer gestureRecognizer) {
+    this.gestureRecognizer = gestureRecognizer;
+  }
+
+  @Override
+  public Class<? extends PerformerFeatures.BasePerforming> getPerformerClass() {
+    return GesturePerformer.class;
+  }
 }

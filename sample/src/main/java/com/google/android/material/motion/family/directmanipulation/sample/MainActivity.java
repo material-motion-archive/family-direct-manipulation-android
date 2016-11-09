@@ -15,16 +15,21 @@
  */
 package com.google.android.material.motion.family.directmanipulation.sample;
 
-import com.google.android.material.motion.family.directmanipulation.Library;
+import android.view.View;
+
+import com.google.android.material.motion.family.directmanipulation.DragGestureRecognizer;
+import com.google.android.material.motion.family.directmanipulation.Draggable;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.TextView;
+import com.google.android.material.motion.runtime.Runtime;
 
 /**
  * Material Motion Direct Manipulation Family sample Activity.
  */
 public class MainActivity extends AppCompatActivity {
+
+  private final Runtime runtime = new Runtime();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +37,8 @@ public class MainActivity extends AppCompatActivity {
 
     setContentView(R.layout.main_activity);
 
-    TextView text = (TextView) findViewById(R.id.text);
-    text.setText(Library.LIBRARY_NAME);
+    View target = findViewById(R.id.target);
+
+    runtime.addPlan(new Draggable(new DragGestureRecognizer(target)), target);
   }
 }
