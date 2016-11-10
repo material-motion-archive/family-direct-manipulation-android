@@ -22,8 +22,6 @@ import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 
-import com.google.android.material.motion.family.directmanipulation.GestureRecognizer.GestureRecognizerState;
-
 /**
  * A gesture recognizer that generates translation events.
  */
@@ -38,10 +36,10 @@ public class DragGestureRecognizer extends GestureRecognizer {
   private float initialY;
   private VelocityTracker velocityTracker;
 
-  private float previousX;
-  private float previousY;
-  private float currentX;
-  private float currentY;
+  private float previousCentroidX;
+  private float previousCentroidY;
+  private float currentCentroidX;
+  private float currentCentroidY;
   private float currentVelocityX;
   private float currentVelocityY;
 
@@ -61,22 +59,37 @@ public class DragGestureRecognizer extends GestureRecognizer {
     }
     velocityTracker.addMovement(copy);
 
+    float centroidX = calculateCentroidX(event);
+    float centroidY = calculateCentroidY(event);
+
     int action = MotionEventCompat.getActionMasked(event);
     switch (action) {
       case MotionEvent.ACTION_DOWN:
-        initialX = event.getRawX();
-        initialY = event.getRawY();
-        previousX = initialX;
-        previousY = initialY;
-        currentX = initialX;
-        currentY = initialY;
+        initialX = centroidX;
+        initialY = centroidY;
+        previousCentroidX = centroidX;
+        previousCentroidY = centroidY;
+        currentCentroidX = centroidX;
+        currentCentroidY = centroidY;
         currentVelocityX = 0f;
         currentVelocityY = 0f;
         break;
+      case MotionEvent.ACTION_POINTER_DOWN:
+      case MotionEvent.ACTION_POINTER_UP:
+        float adjustX = centroidX - currentCentroidX;
+        float adjustY = centroidY - currentCentroidY;
+
+        initialX += adjustX;
+        initialY += adjustY;
+        previousCentroidX += adjustX;
+        previousCentroidY += adjustY;
+        currentCentroidX += adjustX;
+        currentCentroidY += adjustY;
+        break;
       case MotionEvent.ACTION_MOVE:
         if (!isInProgress()) {
-          float deltaX = event.getRawX() - initialX;
-          float deltaY = event.getRawY() - initialY;
+          float deltaX = centroidX - initialX;
+          float deltaY = centroidY - initialY;
           float distance = deltaX * deltaX + deltaY * deltaY;
           if (distance > touchSlopSquare) {
             setState(BEGAN);
@@ -84,10 +97,10 @@ public class DragGestureRecognizer extends GestureRecognizer {
         }
 
         if (isInProgress()) {
-          previousX = currentX;
-          previousY = currentY;
-          currentX = event.getRawX();
-          currentY = event.getRawY();
+          previousCentroidX = currentCentroidX;
+          previousCentroidY = currentCentroidY;
+          currentCentroidX = centroidX;
+          currentCentroidY = centroidY;
 
           setState(CHANGED);
         }
@@ -116,22 +129,22 @@ public class DragGestureRecognizer extends GestureRecognizer {
 
   @Override
   public float getCentroidX() {
-    return currentX;
+    return currentCentroidX;
   }
 
   @Override
   public float getCentroidY() {
-    return currentY;
+    return currentCentroidY;
   }
 
   @Override
   public float getTranslationX() {
-    return currentX - previousX;
+    return currentCentroidX - previousCentroidX;
   }
 
   @Override
   public float getTranslationY() {
-    return currentY - previousY;
+    return currentCentroidY - previousCentroidY;
   }
 
   @Override

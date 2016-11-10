@@ -16,6 +16,7 @@
 package com.google.android.material.motion.family.directmanipulation;
 
 import android.support.annotation.IntDef;
+import android.support.v4.view.MotionEventCompat;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -187,4 +188,58 @@ public abstract class GestureRecognizer {
    * Returns the y velocity of the current gesture.
    */
   public abstract float getVelocityY();
+
+  protected static float calculateCentroidX(MotionEvent event) {
+    int action = MotionEventCompat.getActionMasked(event);
+    int index = MotionEventCompat.getActionIndex(event);
+
+    float movingAverage = 0;
+    int movingCount = 0;
+    for (int i = 0, count = event.getPointerCount(); i < count; i++) {
+      if (action == MotionEvent.ACTION_POINTER_UP && index == i) {
+        continue;
+      }
+
+      // Welford's method.
+      movingCount++;
+      movingAverage += (calculateRawX(event, i) - movingAverage) / movingCount;
+    }
+
+    return movingAverage;
+  }
+
+  protected static float calculateCentroidY(MotionEvent event) {
+    int action = MotionEventCompat.getActionMasked(event);
+    int index = MotionEventCompat.getActionIndex(event);
+
+    float movingAverage = 0;
+    int movingCount = 0;
+    for (int i = 0, count = event.getPointerCount(); i < count; i++) {
+      if (action == MotionEvent.ACTION_POINTER_UP && index == i) {
+        continue;
+      }
+
+      // Welford's method.
+      movingCount++;
+      movingAverage += (calculateRawY(event, i) - movingAverage) / movingCount;
+    }
+
+    return movingAverage;
+  }
+
+  private static float calculateRawX(MotionEvent event, int pointerIndex) {
+    if (pointerIndex == 0) {
+      return event.getRawX();
+    }
+    float adjustX = event.getRawX() - event.getX();
+    return event.getX(pointerIndex) + adjustX;
+  }
+
+  private static float calculateRawY(MotionEvent event, int pointerIndex) {
+    if (pointerIndex == 0) {
+      return event.getRawY();
+    }
+    float adjustY = event.getRawY() - event.getY();
+    return event.getY(pointerIndex) + adjustY;
+  }
 }
