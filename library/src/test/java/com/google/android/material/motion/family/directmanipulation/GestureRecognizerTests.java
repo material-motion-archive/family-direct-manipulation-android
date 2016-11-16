@@ -17,6 +17,7 @@ package com.google.android.material.motion.family.directmanipulation;
 
 import android.app.Activity;
 import android.content.Context;
+import android.view.MotionEvent;
 import android.view.View;
 
 import org.junit.Before;
@@ -73,5 +74,17 @@ public class GestureRecognizerTests {
     gestureRecognizer.setState(BEGAN);
 
     assertThat(listener.states.toArray()).isEqualTo(new Integer[]{POSSIBLE, BEGAN});
+  }
+
+  @Test
+  public void canSetNullElement() {
+    gestureRecognizer.setElement(null);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void cannotPassEventsToNullElement() {
+    gestureRecognizer.setElement(null);
+    gestureRecognizer.onTouchEvent(MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 0, 0, 0));
+    gestureRecognizer.onTouchEvent(MotionEvent.obtain(0, 0, MotionEvent.ACTION_MOVE, 200, 200, 0));
   }
 }

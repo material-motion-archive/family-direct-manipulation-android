@@ -33,10 +33,14 @@ import static com.google.android.material.motion.family.directmanipulation.Gestu
 import static com.google.android.material.motion.family.directmanipulation.GestureRecognizer.POSSIBLE;
 import static com.google.android.material.motion.family.directmanipulation.GestureRecognizer.RECOGNIZED;
 import static com.google.common.truth.Truth.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21)
 public class DragGestureRecognizerTests {
+
+  private static final float E = 0.0001f;
 
   private View element;
   private DragGestureRecognizer dragGestureRecognizer;
@@ -154,7 +158,67 @@ public class DragGestureRecognizerTests {
     assertThat(listener.states.toArray()).isEqualTo(new Integer[]{POSSIBLE});
   }
 
+  @Test
+  public void multitouchHasCorrectCentroidAndTranslation() {
+    TrackingGestureStateChangeListener listener = new TrackingGestureStateChangeListener();
+    dragGestureRecognizer.addStateChangeListener(listener);
+
+    // First finger down. Centroid is at finger location and translation is 0.
+    dragGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));
+    assertThat(dragGestureRecognizer.getCentroidX()).isWithin(E).of(0);
+    assertThat(dragGestureRecognizer.getCentroidY()).isWithin(E).of(0);
+    assertThat(dragGestureRecognizer.getTranslationX()).isWithin(E).of(0);
+    assertThat(dragGestureRecognizer.getTranslationY()).isWithin(E).of(0);
+
+    // Second finger down. Centroid is in between fingers and translation is 0.
+    dragGestureRecognizer.onTouchEvent(
+      createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_DOWN, 1, 0, 0, 100, 100));
+    assertThat(dragGestureRecognizer.getCentroidX()).isWithin(E).of(50);
+    assertThat(dragGestureRecognizer.getCentroidY()).isWithin(E).of(50);
+    assertThat(dragGestureRecognizer.getTranslationX()).isWithin(E).of(0);
+    assertThat(dragGestureRecognizer.getTranslationY()).isWithin(E).of(0);
+
+    // Second finger moves [dx, dy]. Centroid and translation moves [dx/2, dy/2].
+    float dx = 505;
+    float dy = 507;
+    dragGestureRecognizer.onTouchEvent(
+      createMultiTouchMotionEvent(MotionEvent.ACTION_MOVE, 1, 0, 0, 100 + dx, 100 + dy));
+    assertThat(dragGestureRecognizer.getCentroidX()).isWithin(E).of(50 + dx / 2);
+    assertThat(dragGestureRecognizer.getCentroidY()).isWithin(E).of(50 + dy / 2);
+    assertThat(dragGestureRecognizer.getTranslationX()).isWithin(E).of(dx / 2);
+    assertThat(dragGestureRecognizer.getTranslationY()).isWithin(E).of(dy / 2);
+
+    // Second finger up. Centroid is at first finger location and translation stays the same.
+    dragGestureRecognizer.onTouchEvent(
+      createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_UP, 1, 0, 0, 100 + dx, 100 + dy));
+    assertThat(dragGestureRecognizer.getCentroidX()).isWithin(E).of(0);
+    assertThat(dragGestureRecognizer.getCentroidY()).isWithin(E).of(0);
+    assertThat(dragGestureRecognizer.getTranslationX()).isWithin(E).of(dx / 2);
+    assertThat(dragGestureRecognizer.getTranslationY()).isWithin(E).of(dy / 2);
+  }
+
   private MotionEvent createMotionEvent(int action, float x, float y) {
     return MotionEvent.obtain(eventDownTime, eventTime++, action, x, y, 0);
+  }
+
+  private MotionEvent createMultiTouchMotionEvent(
+    int action, int index, float x0, float y0, float x1, float y1) {
+    MotionEvent event = mock(MotionEvent.class);
+
+    when(event.getPointerCount()).thenReturn(2);
+    when(event.getAction()).thenReturn(action | (index << MotionEvent.ACTION_POINTER_INDEX_SHIFT));
+    when(event.getActionMasked()).thenReturn(action);
+    when(event.getActionIndex()).thenReturn(index);
+
+    when(event.getRawX()).thenReturn(x0);
+    when(event.getRawY()).thenReturn(y0);
+
+    when(event.getX(0)).thenReturn(x0);
+    when(event.getY(0)).thenReturn(y0);
+
+    when(event.getX(1)).thenReturn(x1);
+    when(event.getY(1)).thenReturn(y1);
+
+    return event;
   }
 }
