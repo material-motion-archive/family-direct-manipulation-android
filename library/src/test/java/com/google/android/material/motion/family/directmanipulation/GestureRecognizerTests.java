@@ -42,7 +42,8 @@ public class GestureRecognizerTests {
   public void setUp() {
     Context context = Robolectric.setupActivity(Activity.class);
     element = new View(context);
-    gestureRecognizer = new DragGestureRecognizer(element);
+    gestureRecognizer = new DragGestureRecognizer();
+    gestureRecognizer.setElement(element);
   }
 
   @Test

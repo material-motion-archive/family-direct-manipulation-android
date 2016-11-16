@@ -62,7 +62,10 @@ public class GesturePerformer extends Performer implements ContinuousPerforming 
   }
 
   private void addGesturePlanCommon(GesturePlan plan) {
-    plan.gestureRecognizer.addStateChangeListener(createTokenGestureListener());
+    if (plan.gestureRecognizer.getElement() == null) {
+      plan.gestureRecognizer.setElement((View) getTarget());
+    }
+    plan.gestureRecognizer.addStateChangeListener(tokenGestureListener);
     gestureRecognizers.put(plan.gestureRecognizer.getClass(), plan.gestureRecognizer);
   }
 
@@ -83,25 +86,23 @@ public class GesturePerformer extends Performer implements ContinuousPerforming 
     }
   };
 
-  private GestureStateChangeListener createTokenGestureListener() {
-    return new GestureStateChangeListener() {
+  private GestureStateChangeListener tokenGestureListener = new GestureStateChangeListener() {
 
-      private IsActiveToken token;
+    private SimpleArrayMap<GestureRecognizer, IsActiveToken> tokens = new SimpleArrayMap<>();
 
-      @Override
-      public void onStateChanged(GestureRecognizer gestureRecognizer) {
-        switch (gestureRecognizer.getState()) {
-          case GestureRecognizer.BEGAN:
-            token = isActiveTokenGenerator.generate();
-            break;
-          case GestureRecognizer.RECOGNIZED:
-          case GestureRecognizer.CANCELLED:
-            token.terminate();
-            break;
-        }
+    @Override
+    public void onStateChanged(GestureRecognizer gestureRecognizer) {
+      switch (gestureRecognizer.getState()) {
+        case GestureRecognizer.BEGAN:
+          tokens.put(gestureRecognizer, isActiveTokenGenerator.generate());
+          break;
+        case GestureRecognizer.RECOGNIZED:
+        case GestureRecognizer.CANCELLED:
+          tokens.remove(gestureRecognizer).terminate();
+          break;
       }
-    };
-  }
+    }
+  };
 
   private final GestureStateChangeListener dragGestureListener = new GestureStateChangeListener() {
 

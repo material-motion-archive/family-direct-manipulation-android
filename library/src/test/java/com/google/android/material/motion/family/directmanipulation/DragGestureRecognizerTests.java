@@ -33,8 +33,6 @@ import static com.google.android.material.motion.family.directmanipulation.Gestu
 import static com.google.android.material.motion.family.directmanipulation.GestureRecognizer.POSSIBLE;
 import static com.google.android.material.motion.family.directmanipulation.GestureRecognizer.RECOGNIZED;
 import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21)
@@ -50,7 +48,8 @@ public class DragGestureRecognizerTests {
   public void setUp() {
     Context context = Robolectric.setupActivity(Activity.class);
     element = new View(context);
-    dragGestureRecognizer = new DragGestureRecognizer(element);
+    dragGestureRecognizer = new DragGestureRecognizer();
+    dragGestureRecognizer.setElement(element);
 
     eventDownTime = 0;
     eventTime = 0;

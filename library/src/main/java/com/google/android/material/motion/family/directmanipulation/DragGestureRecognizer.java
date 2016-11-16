@@ -15,23 +15,14 @@
  */
 package com.google.android.material.motion.family.directmanipulation;
 
-import android.content.Context;
 import android.support.v4.view.MotionEventCompat;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
-import android.view.View;
-import android.view.ViewConfiguration;
 
 /**
  * A gesture recognizer that generates translation events.
  */
 public class DragGestureRecognizer extends GestureRecognizer {
-
-  private static final int PIXELS_PER_SECOND = 1000;
-
-  private final int touchSlopSquare;
-  private final float maximumFlingVelocity;
-
   private float initialX;
   private float initialY;
   private VelocityTracker velocityTracker;
@@ -42,14 +33,6 @@ public class DragGestureRecognizer extends GestureRecognizer {
   private float currentCentroidY;
   private float currentVelocityX;
   private float currentVelocityY;
-
-  public DragGestureRecognizer(View element) {
-    super(element);
-    Context context = element.getContext();
-    int touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
-    this.touchSlopSquare = touchSlop * touchSlop;
-    this.maximumFlingVelocity = ViewConfiguration.get(context).getScaledMaximumFlingVelocity();
-  }
 
   public boolean onTouchEvent(MotionEvent event) {
     MotionEvent copy = MotionEvent.obtain(event);

@@ -15,11 +15,14 @@
  */
 package com.google.android.material.motion.family.directmanipulation;
 
+import android.content.Context;
 import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
 import android.support.v4.view.MotionEventCompat;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.view.ViewConfiguration;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -86,14 +89,37 @@ public abstract class GestureRecognizer {
 
   }
 
-  private final View element;
-  private final List<GestureStateChangeListener> listeners = new CopyOnWriteArrayList<>();
+  protected static final int PIXELS_PER_SECOND = 1000;
 
+  protected int touchSlopSquare;
+  protected float maximumFlingVelocity;
+
+  private final List<GestureStateChangeListener> listeners = new CopyOnWriteArrayList<>();
+  @Nullable
+  private View element;
   @GestureRecognizerState
   private int state = POSSIBLE;
 
-  GestureRecognizer(View element) {
+  /**
+   * Sets the view that this gesture recognizer is attached to. This must be called before this
+   * gesture recognizer can start {@link #onTouchEvent(MotionEvent) accepting touch events}.
+   */
+  public void setElement(@Nullable View element) {
     this.element = element;
+
+    if (element != null) {
+      Context context = element.getContext();
+      int touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+      this.touchSlopSquare = touchSlop * touchSlop;
+      this.maximumFlingVelocity = ViewConfiguration.get(context).getScaledMaximumFlingVelocity();
+    }
+  }
+
+  /**
+   * Returns the view associated with this gesture recognizer.
+   */
+  public View getElement() {
+    return element;
   }
 
   /**
@@ -108,13 +134,6 @@ public abstract class GestureRecognizer {
    * Forwards touch events from a {@link OnTouchListener} to this gesture recognizer.
    */
   public abstract boolean onTouchEvent(MotionEvent event);
-
-  /**
-   * Returns the view associated with this gesture recognizer.
-   */
-  public View getElement() {
-    return element;
-  }
 
   /**
    * Adds a listener to this gesture recognizer.

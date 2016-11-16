@@ -29,6 +29,10 @@ import com.google.android.material.motion.runtime.Performer;
  */
 public class Draggable extends GesturePlan {
 
+  public Draggable() {
+    this(new DragGestureRecognizer());
+  }
+
   public Draggable(DragGestureRecognizer gestureRecognizer) {
     super(gestureRecognizer);
   }

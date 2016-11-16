@@ -24,7 +24,6 @@ import com.google.android.material.motion.runtime.Performer;
 import com.google.android.material.motion.runtime.PerformerFeatures;
 import com.google.android.material.motion.runtime.Plan;
 import com.google.android.material.motion.runtime.Runtime;
-import com.google.common.truth.Truth;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +56,7 @@ public class GesturePerformerTests {
 
   @Test
   public void makesViewDraggable() {
-    runtime.addPlan(new Draggable(new DragGestureRecognizer(target)), target);
+    runtime.addPlan(new Draggable(), target);
 
     target.layout(0, 0, 50, 75);
 
@@ -73,8 +72,11 @@ public class GesturePerformerTests {
 
   @Test
   public void addingDraggableMultipleTimesIsOk() {
-    runtime.addPlan(new Draggable(new DragGestureRecognizer(target)), target);
-    runtime.addPlan(new Draggable(new DragGestureRecognizer(target)), target);
+    DragGestureRecognizer gestureRecognizer = new DragGestureRecognizer();
+    gestureRecognizer.setElement(target);
+
+    runtime.addPlan(new Draggable(gestureRecognizer), target);
+    runtime.addPlan(new Draggable(gestureRecognizer), target);
 
     makesViewDraggable();
   }
