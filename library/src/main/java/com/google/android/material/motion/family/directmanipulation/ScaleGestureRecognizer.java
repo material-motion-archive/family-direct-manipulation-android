@@ -37,15 +37,16 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
 
     int action = MotionEventCompat.getActionMasked(event);
     int pointerCount = event.getPointerCount();
-    if (action == MotionEvent.ACTION_POINTER_DOWN && pointerCount == 2) {
+    if (action == MotionEvent.ACTION_DOWN
+      || action == MotionEvent.ACTION_POINTER_DOWN && pointerCount == 2) {
       currentCentroidX = centroidX;
       currentCentroidY = centroidY;
 
       initialSpan = span;
       currentSpan = span;
-    } else if (
-      (action == MotionEvent.ACTION_POINTER_DOWN && pointerCount > 2)
-        || action == MotionEvent.ACTION_POINTER_UP && pointerCount > 2) {
+    }
+    if (action == MotionEvent.ACTION_POINTER_DOWN && pointerCount > 2
+      || action == MotionEvent.ACTION_POINTER_UP && pointerCount > 2) {
       float adjustX = centroidX - currentCentroidX;
       float adjustY = centroidY - currentCentroidY;
 
@@ -56,17 +57,19 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
 
       initialSpan *= adjustSpan;
       currentSpan *= adjustSpan;
-    } else if (action == MotionEvent.ACTION_MOVE && pointerCount >= 2) {
+    }
+    if (action == MotionEvent.ACTION_MOVE && pointerCount < 2) {
+      currentCentroidX = centroidX;
+      currentCentroidY = centroidY;
+    }
+    if (action == MotionEvent.ACTION_MOVE && pointerCount >= 2) {
+      currentCentroidX = centroidX;
+      currentCentroidY = centroidY;
+
       if (!isInProgress()) {
-        float delta = span - initialSpan;
-        if (Math.abs(delta) > touchSlop) {
-          float adjustX = centroidX - currentCentroidX;
-          float adjustY = centroidY - currentCentroidY;
-
-          currentCentroidX += adjustX;
-          currentCentroidY += adjustY;
-
-          float adjustSpan = span / currentSpan;
+        float deltaSpan = span - initialSpan;
+        if (Math.abs(deltaSpan) > scaleSlop) {
+          float adjustSpan = 1 + Math.signum(deltaSpan) * (scaleSlop / initialSpan);
 
           initialSpan *= adjustSpan;
           currentSpan *= adjustSpan;
@@ -76,16 +79,20 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
       }
 
       if (isInProgress()) {
-        currentCentroidX = centroidX;
-        currentCentroidY = centroidY;
-
         currentSpan = span;
 
         setState(CHANGED);
       }
-    } else if ((action == MotionEvent.ACTION_POINTER_UP && pointerCount == 2)
+    }
+    if (action == MotionEvent.ACTION_POINTER_UP && pointerCount == 2
       || action == MotionEvent.ACTION_CANCEL) {
       if (isInProgress()) {
+        currentCentroidX = centroidX;
+        currentCentroidY = centroidY;
+
+        initialSpan = 0;
+        currentSpan = 0;
+
         if (action == MotionEvent.ACTION_POINTER_UP) {
           setState(RECOGNIZED);
         } else {
@@ -98,7 +105,7 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
   }
 
   /**
-   * Returns the scale of the drag gesture.
+   * Returns the scale of the pinch gesture.
    * <p>
    * This reports the total scale over time since the {@link #BEGAN beginning} of the gesture.
    * This is not a delta value from the last {@link #CHANGED update}.

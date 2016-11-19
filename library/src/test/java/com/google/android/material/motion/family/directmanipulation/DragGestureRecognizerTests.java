@@ -54,7 +54,7 @@ public class DragGestureRecognizerTests {
     element = new View(context);
     dragGestureRecognizer = new DragGestureRecognizer();
     dragGestureRecognizer.setElement(element);
-    dragGestureRecognizer.touchSlop = 0;
+    dragGestureRecognizer.dragSlop = 0;
 
     eventDownTime = 0;
     eventTime = 0;
@@ -74,7 +74,7 @@ public class DragGestureRecognizerTests {
 
   @Test
   public void smallMovementIsNotRecognized() {
-    dragGestureRecognizer.touchSlop = 24;
+    dragGestureRecognizer.dragSlop = 24;
 
     TrackingGestureStateChangeListener listener = new TrackingGestureStateChangeListener();
     dragGestureRecognizer.addStateChangeListener(listener);
@@ -93,7 +93,7 @@ public class DragGestureRecognizerTests {
 
   @Test
   public void largeHorizontalMovementIsRecognized() {
-    dragGestureRecognizer.touchSlop = 24;
+    dragGestureRecognizer.dragSlop = 24;
 
     TrackingGestureStateChangeListener listener = new TrackingGestureStateChangeListener();
     dragGestureRecognizer.addStateChangeListener(listener);
@@ -117,7 +117,7 @@ public class DragGestureRecognizerTests {
 
   @Test
   public void largeVerticalMovementIsRecognized() {
-    dragGestureRecognizer.touchSlop = 24;
+    dragGestureRecognizer.dragSlop = 24;
 
     TrackingGestureStateChangeListener listener = new TrackingGestureStateChangeListener();
     dragGestureRecognizer.addStateChangeListener(listener);
@@ -224,6 +224,8 @@ public class DragGestureRecognizerTests {
     assertThat(dragGestureRecognizer.getCentroidY()).isWithin(E).of(0);
     assertThat(dragGestureRecognizer.getTranslationX()).isWithin(E).of(dx / 2);
     assertThat(dragGestureRecognizer.getTranslationY()).isWithin(E).of(dy / 2);
+
+    assertThat(listener.states.toArray()).isEqualTo(new Integer[]{POSSIBLE, BEGAN, CHANGED});
   }
 
   private MotionEvent createMotionEvent(int action, float x, float y) {

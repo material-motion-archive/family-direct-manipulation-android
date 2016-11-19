@@ -53,7 +53,8 @@ public class DragGestureRecognizer extends GestureRecognizer {
       currentCentroidY = centroidY;
       currentVelocityX = 0f;
       currentVelocityY = 0f;
-    } else if (action == MotionEvent.ACTION_POINTER_DOWN
+    }
+    if (action == MotionEvent.ACTION_POINTER_DOWN
       || action == MotionEvent.ACTION_POINTER_UP) {
       float adjustX = centroidX - currentCentroidX;
       float adjustY = centroidY - currentCentroidY;
@@ -62,13 +63,14 @@ public class DragGestureRecognizer extends GestureRecognizer {
       initialCentroidY += adjustY;
       currentCentroidX += adjustX;
       currentCentroidY += adjustY;
-    } else if (action == MotionEvent.ACTION_MOVE) {
+    }
+    if (action == MotionEvent.ACTION_MOVE) {
       if (!isInProgress()) {
         float deltaX = centroidX - initialCentroidX;
         float deltaY = centroidY - initialCentroidY;
-        if (Math.abs(deltaX) > touchSlop || Math.abs(deltaY) > touchSlop) {
-          float adjustX = Math.signum(deltaX) * Math.min(Math.abs(deltaX), touchSlop);
-          float adjustY = Math.signum(deltaY) * Math.min(Math.abs(deltaY), touchSlop);
+        if (Math.abs(deltaX) > dragSlop || Math.abs(deltaY) > dragSlop) {
+          float adjustX = Math.signum(deltaX) * Math.min(Math.abs(deltaX), dragSlop);
+          float adjustY = Math.signum(deltaY) * Math.min(Math.abs(deltaY), dragSlop);
 
           initialCentroidX += adjustX;
           initialCentroidY += adjustY;
@@ -85,9 +87,15 @@ public class DragGestureRecognizer extends GestureRecognizer {
 
         setState(CHANGED);
       }
-    } else if (action == MotionEvent.ACTION_UP
+    }
+    if (action == MotionEvent.ACTION_UP
       || action == MotionEvent.ACTION_CANCEL) {
       if (isInProgress()) {
+        initialCentroidX = centroidX;
+        initialCentroidY = centroidY;
+        currentCentroidX = centroidX;
+        currentCentroidY = centroidY;
+
         velocityTracker.computeCurrentVelocity(PIXELS_PER_SECOND, maximumFlingVelocity);
         currentVelocityX = velocityTracker.getXVelocity();
         currentVelocityY = velocityTracker.getYVelocity();

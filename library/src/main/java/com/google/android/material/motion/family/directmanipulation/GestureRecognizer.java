@@ -101,7 +101,14 @@ public abstract class GestureRecognizer {
   private final float[] array = new float[2];
   private final PointF pointF = new PointF();
 
-  protected int touchSlop = DEFAULT;
+  /**
+   * Touch slop for drag. Amount of pixels that the centroid needs to move in either axes.
+   */
+  protected int dragSlop = DEFAULT;
+  /**
+   * Touch slop for scale. Amount of pixels that the span needs to change.
+   */
+  protected int scaleSlop = DEFAULT;
   protected float maximumFlingVelocity;
 
   private final List<GestureStateChangeListener> listeners = new CopyOnWriteArrayList<>();
@@ -119,8 +126,11 @@ public abstract class GestureRecognizer {
 
     if (element != null) {
       Context context = element.getContext();
-      if (touchSlop == DEFAULT) {
-        this.touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+      if (dragSlop == DEFAULT) {
+        this.dragSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+      }
+      if (scaleSlop == DEFAULT) {
+        this.scaleSlop = ViewConfiguration.get(context).getScaledTouchSlop();
       }
       this.maximumFlingVelocity = ViewConfiguration.get(context).getScaledMaximumFlingVelocity();
     }
