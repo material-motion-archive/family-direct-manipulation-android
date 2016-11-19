@@ -54,6 +54,7 @@ public class DragGestureRecognizerTests {
     element = new View(context);
     dragGestureRecognizer = new DragGestureRecognizer();
     dragGestureRecognizer.setElement(element);
+    dragGestureRecognizer.touchSlop = 0;
 
     eventDownTime = 0;
     eventTime = 0;
@@ -73,6 +74,8 @@ public class DragGestureRecognizerTests {
 
   @Test
   public void smallMovementIsNotRecognized() {
+    dragGestureRecognizer.touchSlop = 24;
+
     TrackingGestureStateChangeListener listener = new TrackingGestureStateChangeListener();
     dragGestureRecognizer.addStateChangeListener(listener);
     assertThat(dragGestureRecognizer.getState()).isEqualTo(POSSIBLE);
@@ -89,7 +92,9 @@ public class DragGestureRecognizerTests {
   }
 
   @Test
-  public void largeMovementIsRecognized() {
+  public void largeHorizontalMovementIsRecognized() {
+    dragGestureRecognizer.touchSlop = 24;
+
     TrackingGestureStateChangeListener listener = new TrackingGestureStateChangeListener();
     dragGestureRecognizer.addStateChangeListener(listener);
     assertThat(dragGestureRecognizer.getState()).isEqualTo(POSSIBLE);
@@ -99,13 +104,37 @@ public class DragGestureRecognizerTests {
     assertThat(dragGestureRecognizer.getState()).isEqualTo(POSSIBLE);
     assertThat(listener.states.toArray()).isEqualTo(new Integer[]{POSSIBLE});
 
-    // Move 100 pixel. Should change the state.
+    // Move 100 pixel right. Should change the state.
     dragGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_MOVE, 100, 0));
     assertThat(dragGestureRecognizer.getState()).isEqualTo(CHANGED);
     assertThat(listener.states.toArray()).isEqualTo(new Integer[]{POSSIBLE, BEGAN, CHANGED});
 
     // Move 1 pixel. Should still change the state.
-    dragGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_MOVE, 1, 0));
+    dragGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_MOVE, 101, 0));
+    assertThat(dragGestureRecognizer.getState()).isEqualTo(CHANGED);
+    assertThat(listener.states.toArray()).isEqualTo(new Integer[]{POSSIBLE, BEGAN, CHANGED, CHANGED});
+  }
+
+  @Test
+  public void largeVerticalMovementIsRecognized() {
+    dragGestureRecognizer.touchSlop = 24;
+
+    TrackingGestureStateChangeListener listener = new TrackingGestureStateChangeListener();
+    dragGestureRecognizer.addStateChangeListener(listener);
+    assertThat(dragGestureRecognizer.getState()).isEqualTo(POSSIBLE);
+    assertThat(listener.states.toArray()).isEqualTo(new Integer[]{POSSIBLE});
+
+    dragGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));
+    assertThat(dragGestureRecognizer.getState()).isEqualTo(POSSIBLE);
+    assertThat(listener.states.toArray()).isEqualTo(new Integer[]{POSSIBLE});
+
+    // Move 100 pixel right. Should change the state.
+    dragGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_MOVE, 0, 100));
+    assertThat(dragGestureRecognizer.getState()).isEqualTo(CHANGED);
+    assertThat(listener.states.toArray()).isEqualTo(new Integer[]{POSSIBLE, BEGAN, CHANGED});
+
+    // Move 1 pixel. Should still change the state.
+    dragGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_MOVE, 0, 101));
     assertThat(dragGestureRecognizer.getState()).isEqualTo(CHANGED);
     assertThat(listener.states.toArray()).isEqualTo(new Integer[]{POSSIBLE, BEGAN, CHANGED, CHANGED});
   }

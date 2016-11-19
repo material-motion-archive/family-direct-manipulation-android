@@ -37,6 +37,7 @@ import static com.google.common.truth.Truth.assertThat;
 @RunWith(RobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, sdk = 21)
 public class GesturePerformerTests {
+  private static final float E = 0.0001f;
 
   private Runtime runtime;
   private View target;
@@ -56,7 +57,10 @@ public class GesturePerformerTests {
 
   @Test
   public void makesViewDraggable() {
-    runtime.addPlan(new Draggable(), target);
+    Draggable plan = new Draggable();
+    plan.gestureRecognizer.touchSlop = 0;
+
+    runtime.addPlan(plan, target);
 
     target.layout(0, 0, 50, 75);
 
@@ -64,10 +68,8 @@ public class GesturePerformerTests {
     target.dispatchTouchEvent(createMotionEvent(MotionEvent.ACTION_MOVE, 100, 200));
     target.dispatchTouchEvent(createMotionEvent(MotionEvent.ACTION_UP, 100, 200));
 
-    assertThat(target.getLeft()).isEqualTo(100);
-    assertThat(target.getTop()).isEqualTo(200);
-    assertThat(target.getRight()).isEqualTo(150);
-    assertThat(target.getBottom()).isEqualTo(275);
+    assertThat(target.getTranslationX()).isWithin(E).of(100);
+    assertThat(target.getTranslationY()).isWithin(E).of(200);
   }
 
   @Test

@@ -16,6 +16,8 @@
 package com.google.android.material.motion.family.directmanipulation;
 
 import android.content.Context;
+import android.graphics.Matrix;
+import android.graphics.PointF;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.v4.view.MotionEventCompat;
@@ -34,6 +36,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * events. When attached to an element, any interactions with that element will be interpreted by
  * the gesture recognizer and turned into gesture events. The output is often a linear
  * transformation of translation, rotation, and/or scale.
+ * <p>
+ * To use an instance of this class, first set the element with {@link #setElement(View)} then
+ * forward all touch events from the element's parent to {@link #onTouchEvent(MotionEvent)}.
  */
 public abstract class GestureRecognizer {
 
@@ -44,7 +49,6 @@ public abstract class GestureRecognizer {
 
     /**
      * Notifies every time on {@link GestureRecognizerState state} change.
-     * <p>
      * <p>
      * Implementations should query the provided gesture recognizer for its current state and
      * properties.
@@ -90,8 +94,14 @@ public abstract class GestureRecognizer {
   }
 
   protected static final int PIXELS_PER_SECOND = 1000;
+  private static final int DEFAULT = -1;
 
-  protected int touchSlopSquare;
+  /* Temporary variables. */
+  private final Matrix matrix = new Matrix();
+  private final float[] array = new float[2];
+  private final PointF pointF = new PointF();
+
+  protected int touchSlop = DEFAULT;
   protected float maximumFlingVelocity;
 
   private final List<GestureStateChangeListener> listeners = new CopyOnWriteArrayList<>();
@@ -109,8 +119,9 @@ public abstract class GestureRecognizer {
 
     if (element != null) {
       Context context = element.getContext();
-      int touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
-      this.touchSlopSquare = touchSlop * touchSlop;
+      if (touchSlop == DEFAULT) {
+        this.touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+      }
       this.maximumFlingVelocity = ViewConfiguration.get(context).getScaledMaximumFlingVelocity();
     }
   }
@@ -179,86 +190,71 @@ public abstract class GestureRecognizer {
   }
 
   /**
-   * Returns the raw centroid x position of the current gesture.
+   * Returns the centroidX position of the current gesture.
+   * <p>
+   * This value is only useful in relation to other values of {@link #getCentroidX()}. It is not
+   * guaranteed to be useful in relation to any coordinate spaces.
    */
   public abstract float getCentroidX();
 
   /**
-   * Returns the raw centroid y position of the current gesture.
+   * Returns the centroidY position of the current gesture.
+   * <p>
+   * This value is only useful in relation to other values of {@link #getCentroidX()}. It is not
+   * guaranteed to be useful in relation to any coordinate spaces.
    */
   public abstract float getCentroidY();
 
   /**
-   * Returns the change in centroid x of the current gesture.
+   * Calculates the centroid of all the active pointers in the given motion event.
+   *
+   * @return A point representing the centroid. The caller should read the values immediately as
+   * the object may be reused in other calculations.
    */
-  public abstract float getTranslationX();
-
-  /**
-   * Returns the change in centroid y of the current gesture.
-   */
-  public abstract float getTranslationY();
-
-  /**
-   * Returns the x velocity of the current gesture.
-   */
-  public abstract float getVelocityX();
-
-  /**
-   * Returns the y velocity of the current gesture.
-   */
-  public abstract float getVelocityY();
-
-  protected static float calculateCentroidX(MotionEvent event) {
+  protected PointF calculateCentroid(MotionEvent event) {
     int action = MotionEventCompat.getActionMasked(event);
     int index = MotionEventCompat.getActionIndex(event);
 
-    float movingAverage = 0;
-    int movingCount = 0;
+    float sumX = 0;
+    float sumY = 0;
+    int num = 0;
     for (int i = 0, count = event.getPointerCount(); i < count; i++) {
       if (action == MotionEvent.ACTION_POINTER_UP && index == i) {
         continue;
       }
 
-      // Welford's method.
-      movingCount++;
-      movingAverage += (calculateRawX(event, i) - movingAverage) / movingCount;
+      sumX += calculateRawPoint(event, i).x;
+      sumY += calculateRawPoint(event, i).y;
+      num++;
     }
 
-    return movingAverage;
+    pointF.set(sumX / num, sumY / num);
+    return pointF;
   }
 
-  protected static float calculateCentroidY(MotionEvent event) {
-    int action = MotionEventCompat.getActionMasked(event);
-    int index = MotionEventCompat.getActionIndex(event);
+  /**
+   * Calculates the raw x and y of the pointer given by the pointer index in the given motion event.
+   * <p>
+   * A raw coordinate represents the location of a pointer that is not transformed by the element's
+   * transformation matrix. A raw coordinate of a pointer is only valid in relation those of other
+   * pointers in the motion event. {@code calculateRawPoint(event, 0).x} is not necessarily equal to
+   * {@code event.getRawX()}.
+   *
+   * @return A point representing the raw x and y. The caller should read the values immediately as
+   * the object may be reused in other calculations.
+   */
+  protected PointF calculateRawPoint(MotionEvent event, int pointerIndex) {
+    matrix.reset();
+    matrix.postScale(element.getScaleX(), element.getScaleY(), element.getPivotX(), element.getPivotY());
+    matrix.postRotate(element.getRotation(), element.getPivotX(), element.getPivotY());
+    matrix.postTranslate(element.getTranslationX(), element.getTranslationY());
 
-    float movingAverage = 0;
-    int movingCount = 0;
-    for (int i = 0, count = event.getPointerCount(); i < count; i++) {
-      if (action == MotionEvent.ACTION_POINTER_UP && index == i) {
-        continue;
-      }
+    array[0] = event.getX(pointerIndex);
+    array[1] = event.getY(pointerIndex);
 
-      // Welford's method.
-      movingCount++;
-      movingAverage += (calculateRawY(event, i) - movingAverage) / movingCount;
-    }
+    matrix.mapPoints(array);
+    pointF.set(array[0], array[1]);
 
-    return movingAverage;
-  }
-
-  private static float calculateRawX(MotionEvent event, int pointerIndex) {
-    if (pointerIndex == 0) {
-      return event.getRawX();
-    }
-    float adjustX = event.getRawX() - event.getX();
-    return event.getX(pointerIndex) + adjustX;
-  }
-
-  private static float calculateRawY(MotionEvent event, int pointerIndex) {
-    if (pointerIndex == 0) {
-      return event.getRawY();
-    }
-    float adjustY = event.getRawY() - event.getY();
-    return event.getY(pointerIndex) + adjustY;
+    return pointF;
   }
 }

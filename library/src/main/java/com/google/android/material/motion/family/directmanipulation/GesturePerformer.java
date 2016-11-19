@@ -105,14 +105,24 @@ public class GesturePerformer extends Performer implements ContinuousPerforming 
   };
 
   private final GestureStateChangeListener dragGestureListener = new GestureStateChangeListener() {
+    private float initialTranslationX;
+    private float initialTranslationY;
 
     @Override
     public void onStateChanged(GestureRecognizer gestureRecognizer) {
-      switch (gestureRecognizer.getState()) {
+      View target = getTarget();
+      DragGestureRecognizer dragGestureRecognizer = (DragGestureRecognizer) gestureRecognizer;
+      switch (dragGestureRecognizer.getState()) {
+        case GestureRecognizer.BEGAN:
+          initialTranslationX = target.getTranslationX();
+          initialTranslationY = target.getTranslationY();
+          break;
         case GestureRecognizer.CHANGED:
-          View target = getTarget();
-          target.offsetLeftAndRight((int) gestureRecognizer.getTranslationX());
-          target.offsetTopAndBottom((int) gestureRecognizer.getTranslationY());
+          float translationX = dragGestureRecognizer.getTranslationX();
+          float translationY = dragGestureRecognizer.getTranslationY();
+
+          target.setTranslationX(initialTranslationX + translationX);
+          target.setTranslationY(initialTranslationY + translationY);
           break;
       }
     }

@@ -23,7 +23,6 @@ import com.google.android.material.motion.runtime.Performer;
 /**
  * Make the target draggable. The target {@link View} is offset by the translation of a
  * {@link DragGestureRecognizer}.
- *
  * <p>
  * Note that this will overwrite the {@link Performer#target target}'s {@link OnTouchListener}.
  */

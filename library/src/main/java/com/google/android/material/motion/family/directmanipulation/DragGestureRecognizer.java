@@ -15,6 +15,7 @@
  */
 package com.google.android.material.motion.family.directmanipulation;
 
+import android.graphics.PointF;
 import android.support.v4.view.MotionEventCompat;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -23,12 +24,10 @@ import android.view.VelocityTracker;
  * A gesture recognizer that generates translation events.
  */
 public class DragGestureRecognizer extends GestureRecognizer {
-  private float initialX;
-  private float initialY;
   private VelocityTracker velocityTracker;
 
-  private float previousCentroidX;
-  private float previousCentroidY;
+  private float initialCentroidX;
+  private float initialCentroidY;
   private float currentCentroidX;
   private float currentCentroidY;
   private float currentVelocityX;
@@ -42,72 +41,111 @@ public class DragGestureRecognizer extends GestureRecognizer {
     }
     velocityTracker.addMovement(copy);
 
-    float centroidX = calculateCentroidX(event);
-    float centroidY = calculateCentroidY(event);
+    PointF centroid = calculateCentroid(event);
+    float centroidX = centroid.x;
+    float centroidY = centroid.y;
 
     int action = MotionEventCompat.getActionMasked(event);
-    switch (action) {
-      case MotionEvent.ACTION_DOWN:
-        initialX = centroidX;
-        initialY = centroidY;
-        previousCentroidX = centroidX;
-        previousCentroidY = centroidY;
+    if (action == MotionEvent.ACTION_DOWN) {
+      initialCentroidX = centroidX;
+      initialCentroidY = centroidY;
+      currentCentroidX = centroidX;
+      currentCentroidY = centroidY;
+      currentVelocityX = 0f;
+      currentVelocityY = 0f;
+    } else if (action == MotionEvent.ACTION_POINTER_DOWN
+      || action == MotionEvent.ACTION_POINTER_UP) {
+      float adjustX = centroidX - currentCentroidX;
+      float adjustY = centroidY - currentCentroidY;
+
+      initialCentroidX += adjustX;
+      initialCentroidY += adjustY;
+      currentCentroidX += adjustX;
+      currentCentroidY += adjustY;
+    } else if (action == MotionEvent.ACTION_MOVE) {
+      if (!isInProgress()) {
+        float deltaX = centroidX - initialCentroidX;
+        float deltaY = centroidY - initialCentroidY;
+        if (Math.abs(deltaX) > touchSlop || Math.abs(deltaY) > touchSlop) {
+          float adjustX = Math.signum(deltaX) * Math.min(Math.abs(deltaX), touchSlop);
+          float adjustY = Math.signum(deltaY) * Math.min(Math.abs(deltaY), touchSlop);
+
+          initialCentroidX += adjustX;
+          initialCentroidY += adjustY;
+          currentCentroidX += adjustX;
+          currentCentroidY += adjustY;
+
+          setState(BEGAN);
+        }
+      }
+
+      if (isInProgress()) {
         currentCentroidX = centroidX;
         currentCentroidY = centroidY;
-        currentVelocityX = 0f;
-        currentVelocityY = 0f;
-        break;
-      case MotionEvent.ACTION_POINTER_DOWN:
-      case MotionEvent.ACTION_POINTER_UP:
-        float adjustX = centroidX - currentCentroidX;
-        float adjustY = centroidY - currentCentroidY;
 
-        initialX += adjustX;
-        initialY += adjustY;
-        previousCentroidX += adjustX;
-        previousCentroidY += adjustY;
-        currentCentroidX += adjustX;
-        currentCentroidY += adjustY;
-        break;
-      case MotionEvent.ACTION_MOVE:
-        if (!isInProgress()) {
-          float deltaX = centroidX - initialX;
-          float deltaY = centroidY - initialY;
-          float distance = deltaX * deltaX + deltaY * deltaY;
-          if (distance > touchSlopSquare) {
-            setState(BEGAN);
-          }
+        setState(CHANGED);
+      }
+    } else if (action == MotionEvent.ACTION_UP
+      || action == MotionEvent.ACTION_CANCEL) {
+      if (isInProgress()) {
+        velocityTracker.computeCurrentVelocity(PIXELS_PER_SECOND, maximumFlingVelocity);
+        currentVelocityX = velocityTracker.getXVelocity();
+        currentVelocityY = velocityTracker.getYVelocity();
+
+        if (action == MotionEvent.ACTION_UP) {
+          setState(RECOGNIZED);
+        } else {
+          setState(CANCELLED);
         }
+      }
 
-        if (isInProgress()) {
-          previousCentroidX = currentCentroidX;
-          previousCentroidY = currentCentroidY;
-          currentCentroidX = centroidX;
-          currentCentroidY = centroidY;
-
-          setState(CHANGED);
-        }
-        break;
-      case MotionEvent.ACTION_UP:
-      case MotionEvent.ACTION_CANCEL:
-        if (isInProgress()) {
-          velocityTracker.computeCurrentVelocity(PIXELS_PER_SECOND, maximumFlingVelocity);
-          currentVelocityX = velocityTracker.getXVelocity();
-          currentVelocityY = velocityTracker.getYVelocity();
-
-          if (action == MotionEvent.ACTION_UP) {
-            setState(RECOGNIZED);
-          } else {
-            setState(CANCELLED);
-          }
-        }
-
-        velocityTracker.recycle();
-        velocityTracker = null;
-        break;
+      velocityTracker.recycle();
+      velocityTracker = null;
     }
 
     return true;
+  }
+
+  /**
+   * Returns the translationX of the drag gesture.
+   * <p>
+   * This reports the total translation over time since the {@link #BEGAN beginning} of the gesture.
+   * This is not a delta value from the last {@link #CHANGED update}.
+   */
+  public float getTranslationX() {
+    return currentCentroidX - initialCentroidX;
+  }
+
+  /**
+   * Returns the translationY of the drag gesture.
+   * <p>
+   * This reports the total translation over time since the {@link #BEGAN beginning} of the gesture.
+   * This is not a delta value from the last {@link #CHANGED update}.
+   */
+  public float getTranslationY() {
+    return currentCentroidY - initialCentroidY;
+  }
+
+  /**
+   * Returns the velocityX of the drag gesture.
+   * <p>
+   * Only read this when the state is {@link #RECOGNIZED} or {@link #CANCELLED}.
+   *
+   * @return The velocityX in pixels per second.
+   */
+  public float getVelocityX() {
+    return currentVelocityX;
+  }
+
+  /**
+   * Returns the velocityY of the drag gesture.
+   * <p>
+   * Only read this when the state is {@link #RECOGNIZED} or {@link #CANCELLED}.
+   *
+   * @return The velocityY in pixels per second.
+   */
+  public float getVelocityY() {
+    return currentVelocityY;
   }
 
   @Override
@@ -118,25 +156,5 @@ public class DragGestureRecognizer extends GestureRecognizer {
   @Override
   public float getCentroidY() {
     return currentCentroidY;
-  }
-
-  @Override
-  public float getTranslationX() {
-    return currentCentroidX - previousCentroidX;
-  }
-
-  @Override
-  public float getTranslationY() {
-    return currentCentroidY - previousCentroidY;
-  }
-
-  @Override
-  public float getVelocityX() {
-    return currentVelocityX;
-  }
-
-  @Override
-  public float getVelocityY() {
-    return currentVelocityY;
   }
 }
