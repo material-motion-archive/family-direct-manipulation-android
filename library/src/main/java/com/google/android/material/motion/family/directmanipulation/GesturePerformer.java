@@ -51,6 +51,8 @@ public class GesturePerformer extends Performer implements ContinuousPerforming 
   public void addPlan(BasePlan plan) {
     if (plan instanceof Draggable) {
       addDraggable((Draggable) plan);
+    } else if (plan instanceof Pinchable) {
+      addPinchable((Pinchable) plan);
     } else {
       throw new IllegalArgumentException("Plan type not supported for " + plan);
     }
@@ -59,6 +61,11 @@ public class GesturePerformer extends Performer implements ContinuousPerforming 
   private void addDraggable(Draggable plan) {
     addGesturePlanCommon(plan);
     plan.gestureRecognizer.addStateChangeListener(dragGestureListener);
+  }
+
+  private void addPinchable(Pinchable plan) {
+    addGesturePlanCommon(plan);
+    plan.gestureRecognizer.addStateChangeListener(pinchGestureListener);
   }
 
   private void addGesturePlanCommon(GesturePlan plan) {
@@ -123,6 +130,29 @@ public class GesturePerformer extends Performer implements ContinuousPerforming 
 
           target.setTranslationX(initialTranslationX + translationX);
           target.setTranslationY(initialTranslationY + translationY);
+          break;
+      }
+    }
+  };
+
+  private final GestureStateChangeListener pinchGestureListener = new GestureStateChangeListener() {
+    private float initialScaleX;
+    private float initialScaleY;
+
+    @Override
+    public void onStateChanged(GestureRecognizer gestureRecognizer) {
+      View target = getTarget();
+      ScaleGestureRecognizer scaleGestureRecognizer = (ScaleGestureRecognizer) gestureRecognizer;
+      switch (scaleGestureRecognizer.getState()) {
+        case GestureRecognizer.BEGAN:
+          initialScaleX = target.getScaleX();
+          initialScaleY = target.getScaleY();
+          break;
+        case GestureRecognizer.CHANGED:
+          float scale = scaleGestureRecognizer.getScale();
+
+          target.setScaleX(initialScaleX * scale);
+          target.setScaleY(initialScaleY * scale);
           break;
       }
     }
