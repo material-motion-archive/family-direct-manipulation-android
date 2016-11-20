@@ -53,6 +53,8 @@ public class GesturePerformer extends Performer implements ContinuousPerforming 
       addDraggable((Draggable) plan);
     } else if (plan instanceof Pinchable) {
       addPinchable((Pinchable) plan);
+    } else if (plan instanceof Rotatable) {
+      addRotatable((Rotatable) plan);
     } else {
       throw new IllegalArgumentException("Plan type not supported for " + plan);
     }
@@ -65,7 +67,12 @@ public class GesturePerformer extends Performer implements ContinuousPerforming 
 
   private void addPinchable(Pinchable plan) {
     addGesturePlanCommon(plan);
-    plan.gestureRecognizer.addStateChangeListener(pinchGestureListener);
+    plan.gestureRecognizer.addStateChangeListener(scaleGestureListener);
+  }
+
+  private void addRotatable(Rotatable plan) {
+    addGesturePlanCommon(plan);
+    plan.gestureRecognizer.addStateChangeListener(rotateGestureListener);
   }
 
   private void addGesturePlanCommon(GesturePlan plan) {
@@ -135,7 +142,7 @@ public class GesturePerformer extends Performer implements ContinuousPerforming 
     }
   };
 
-  private final GestureStateChangeListener pinchGestureListener = new GestureStateChangeListener() {
+  private final GestureStateChangeListener scaleGestureListener = new GestureStateChangeListener() {
     private float initialScaleX;
     private float initialScaleY;
 
@@ -153,6 +160,26 @@ public class GesturePerformer extends Performer implements ContinuousPerforming 
 
           target.setScaleX(initialScaleX * scale);
           target.setScaleY(initialScaleY * scale);
+          break;
+      }
+    }
+  };
+
+  private final GestureStateChangeListener rotateGestureListener = new GestureStateChangeListener() {
+    private float initialRotation;
+
+    @Override
+    public void onStateChanged(GestureRecognizer gestureRecognizer) {
+      View target = getTarget();
+      RotateGestureRecognizer rotateGestureRecognizer = (RotateGestureRecognizer) gestureRecognizer;
+      switch (rotateGestureRecognizer.getState()) {
+        case GestureRecognizer.BEGAN:
+          initialRotation = target.getRotation();
+          break;
+        case GestureRecognizer.CHANGED:
+          float rotation = rotateGestureRecognizer.getRotation();
+
+          target.setRotation((float) (initialRotation + rotation * (180 / Math.PI)));
           break;
       }
     }

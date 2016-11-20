@@ -21,6 +21,7 @@ import android.view.View;
 
 import com.google.android.material.motion.family.directmanipulation.Draggable;
 import com.google.android.material.motion.family.directmanipulation.Pinchable;
+import com.google.android.material.motion.family.directmanipulation.Rotatable;
 import com.google.android.material.motion.runtime.Runtime;
 
 /**
@@ -40,5 +41,6 @@ public class MainActivity extends AppCompatActivity {
 
     runtime.addPlan(new Draggable(), target);
     runtime.addPlan(new Pinchable(), target);
+    runtime.addPlan(new Rotatable(), target);
   }
 }

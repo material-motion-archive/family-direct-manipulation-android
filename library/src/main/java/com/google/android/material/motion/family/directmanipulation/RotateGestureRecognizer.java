@@ -22,18 +22,18 @@ import android.view.MotionEvent;
 /**
  * A gesture recognizer that generates scale events.
  */
-public class ScaleGestureRecognizer extends GestureRecognizer {
+public class RotateGestureRecognizer extends GestureRecognizer {
   private float currentCentroidX;
   private float currentCentroidY;
 
-  private float initialSpan;
-  private float currentSpan;
+  private float initialAngle;
+  private float currentAngle;
 
   public boolean onTouchEvent(MotionEvent event) {
-    PointF centroid = calculateCentroid(event);
+    PointF centroid = calculateCentroid(event, 2);
     float centroidX = centroid.x;
     float centroidY = centroid.y;
-    float span = calculateAverageSpan(event, centroidX, centroidY);
+    float angle = calculateAngle(event);
 
     int action = MotionEventCompat.getActionMasked(event);
     int pointerCount = event.getPointerCount();
@@ -42,8 +42,8 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
       currentCentroidX = centroidX;
       currentCentroidY = centroidY;
 
-      initialSpan = span;
-      currentSpan = span;
+      initialAngle = angle;
+      currentAngle = angle;
     }
     if (action == MotionEvent.ACTION_POINTER_DOWN && pointerCount > 2
       || action == MotionEvent.ACTION_POINTER_UP && pointerCount > 2) {
@@ -53,29 +53,29 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
       currentCentroidX += adjustX;
       currentCentroidY += adjustY;
 
-      float adjustSpan = span / currentSpan;
+      float adjustAngle = angle - currentAngle;
 
-      initialSpan *= adjustSpan;
-      currentSpan *= adjustSpan;
+      initialAngle += adjustAngle;
+      currentAngle += adjustAngle;
     }
     if (action == MotionEvent.ACTION_MOVE) {
       currentCentroidX = centroidX;
       currentCentroidY = centroidY;
 
       if (!isInProgress()) {
-        float deltaSpan = span - initialSpan;
-        if (Math.abs(deltaSpan) > scaleSlop) {
-          float adjustSpan = 1 + Math.signum(deltaSpan) * (scaleSlop / initialSpan);
+        float deltaAngle = angle - initialAngle;
+        if (Math.abs(deltaAngle) > rotateSlop) {
+          float adjustAngle = Math.signum(deltaAngle) * rotateSlop;
 
-          initialSpan *= adjustSpan;
-          currentSpan *= adjustSpan;
+          initialAngle += adjustAngle;
+          currentAngle += adjustAngle;
 
           setState(BEGAN);
         }
       }
 
       if (isInProgress()) {
-        currentSpan = span;
+        currentAngle = angle;
 
         setState(CHANGED);
       }
@@ -85,8 +85,8 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
       currentCentroidX = centroidX;
       currentCentroidY = centroidY;
 
-      initialSpan = 0;
-      currentSpan = 0;
+      initialAngle = 0;
+      currentAngle = 0;
 
       if (isInProgress()) {
         if (action == MotionEvent.ACTION_POINTER_UP) {
@@ -101,13 +101,13 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
   }
 
   /**
-   * Returns the scale of the pinch gesture.
+   * Returns the rotation of the rotate gesture in radians.
    * <p>
-   * This reports the total scale over time since the {@link #BEGAN beginning} of the gesture.
+   * This reports the total rotation over time since the {@link #BEGAN beginning} of the gesture.
    * This is not a delta value from the last {@link #CHANGED update}.
    */
-  public float getScale() {
-    return initialSpan > 0 ? currentSpan / initialSpan : 1;
+  public float getRotation() {
+    return currentAngle - initialAngle;
   }
 
   @Override
@@ -121,38 +121,44 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
   }
 
   /**
-   * Calculates the average span of all the active pointers in the given motion event.
+   * Calculates the angle between the first two pointers in the given motion event.
    * <p>
-   * The average span is twice the average distance of all pointers to the given centroid.
+   * Angle is calculated from finger 0 to finger 1.
    */
-  private float calculateAverageSpan(MotionEvent event, float centroidX, float centroidY) {
+  private float calculateAngle(MotionEvent event) {
     int action = MotionEventCompat.getActionMasked(event);
-    int index = MotionEventCompat.getActionIndex(event);
-
-    float sum = 0;
-    int num = 0;
-    for (int i = 0, count = event.getPointerCount(); i < count; i++) {
-      if (action == MotionEvent.ACTION_POINTER_UP && index == i) {
-        continue;
-      }
-
-      sum += calculateDistance(event, i, centroidX, centroidY);
-      num++;
+    int pointerIndex = MotionEventCompat.getActionIndex(event);
+    int pointerCount = event.getPointerCount();
+    if (pointerCount < 2) {
+      return 0;
+    }
+    if (action == MotionEvent.ACTION_POINTER_UP && pointerCount == 2) {
+      return 0;
     }
 
-    float averageDistance = sum / num;
-    return averageDistance * 2;
+    int i0 = 0;
+    int i1 = 1;
+    if (action == MotionEvent.ACTION_POINTER_UP) {
+      if (pointerIndex == 0) {
+        i0++;
+        i1++;
+      } else if (pointerIndex == 1) {
+        i1++;
+      }
+    }
+
+    PointF point = calculateRawPoint(event, i0);
+    float x0 = point.x;
+    float y0 = point.y;
+
+    point = calculateRawPoint(event, i1);
+    float x1 = point.x;
+    float y1 = point.y;
+
+    return calculateAngle(x0, y0, x1, y1);
   }
 
-  /**
-   * Calculates the distance between the pointer given by the pointer index and the given centroid.
-   */
-  private float calculateDistance(
-    MotionEvent event, int pointerIndex, float centroidX, float centroidY) {
-    PointF rawPoint = calculateRawPoint(event, pointerIndex);
-    float distanceX = rawPoint.x - centroidX;
-    float distanceY = rawPoint.y - centroidY;
-
-    return (float) Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+  private float calculateAngle(float x0, float y0, float x1, float y1) {
+    return (float) Math.atan2(y1 - y0, x1 - x0);
   }
 }

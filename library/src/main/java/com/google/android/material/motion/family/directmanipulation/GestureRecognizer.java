@@ -109,6 +109,10 @@ public abstract class GestureRecognizer {
    * Touch slop for scale. Amount of pixels that the span needs to change.
    */
   protected int scaleSlop = DEFAULT;
+  /**
+   * Touch slop for rotate. Amount of radians that the angle needs to change.
+   */
+  protected float rotateSlop = DEFAULT;
   protected float maximumFlingVelocity;
 
   private final List<GestureStateChangeListener> listeners = new CopyOnWriteArrayList<>();
@@ -131,6 +135,9 @@ public abstract class GestureRecognizer {
       }
       if (scaleSlop == DEFAULT) {
         this.scaleSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+      }
+      if (rotateSlop == DEFAULT) {
+        this.rotateSlop = (float) (Math.PI / 180);
       }
       this.maximumFlingVelocity = ViewConfiguration.get(context).getScaledMaximumFlingVelocity();
     }
@@ -222,13 +229,23 @@ public abstract class GestureRecognizer {
    * the object may be reused in other calculations.
    */
   protected PointF calculateCentroid(MotionEvent event) {
+    return calculateCentroid(event, Integer.MAX_VALUE);
+  }
+
+  /**
+   * Calculates the centroid of the first {@code n} active pointers in the given motion event.
+   *
+   * @return A point representing the centroid. The caller should read the values immediately as
+   * the object may be reused in other calculations.
+   */
+  protected PointF calculateCentroid(MotionEvent event, int n) {
     int action = MotionEventCompat.getActionMasked(event);
     int index = MotionEventCompat.getActionIndex(event);
 
     float sumX = 0;
     float sumY = 0;
     int num = 0;
-    for (int i = 0, count = event.getPointerCount(); i < count; i++) {
+    for (int i = 0, count = event.getPointerCount(); i < count && i < n; i++) {
       if (action == MotionEvent.ACTION_POINTER_UP && index == i) {
         continue;
       }
