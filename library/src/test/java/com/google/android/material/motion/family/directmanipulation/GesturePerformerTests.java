@@ -96,6 +96,26 @@ public class GesturePerformerTests {
   }
 
   @Test
+  public void makesViewRotatable() {
+    Rotatable plan = new Rotatable();
+    plan.gestureRecognizer.rotateSlop = 0;
+
+    runtime.addPlan(plan, target);
+
+    target.layout(0, 0, 50, 75);
+
+    target.dispatchTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));
+    // Angle = 0 degrees.
+    target.dispatchTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_DOWN, 1, 0, 0, 100, 0));
+    // Angle = 45 degrees.
+    target.dispatchTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_MOVE, 1, 0, 0, 100, 100));
+    target.dispatchTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_UP, 1, 0, 0, 100, 100));
+    target.dispatchTouchEvent(createMotionEvent(MotionEvent.ACTION_UP, 0, 0));
+
+    assertThat(target.getRotation()).isWithin(E).of(45);
+  }
+
+  @Test
   public void addingDraggableMultipleTimesIsOk() {
     DragGestureRecognizer gestureRecognizer = new DragGestureRecognizer();
     gestureRecognizer.setElement(target);

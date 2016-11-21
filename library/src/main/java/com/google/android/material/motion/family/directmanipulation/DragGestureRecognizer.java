@@ -90,12 +90,12 @@ public class DragGestureRecognizer extends GestureRecognizer {
     }
     if (action == MotionEvent.ACTION_UP
       || action == MotionEvent.ACTION_CANCEL) {
-      if (isInProgress()) {
-        initialCentroidX = centroidX;
-        initialCentroidY = centroidY;
-        currentCentroidX = centroidX;
-        currentCentroidY = centroidY;
+      initialCentroidX = centroidX;
+      initialCentroidY = centroidY;
+      currentCentroidX = centroidX;
+      currentCentroidY = centroidY;
 
+      if (isInProgress()) {
         velocityTracker.computeCurrentVelocity(PIXELS_PER_SECOND, maximumFlingVelocity);
         currentVelocityX = velocityTracker.getXVelocity();
         currentVelocityY = velocityTracker.getYVelocity();

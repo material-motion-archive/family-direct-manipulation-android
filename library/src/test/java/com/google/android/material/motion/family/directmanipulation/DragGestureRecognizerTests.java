@@ -225,7 +225,15 @@ public class DragGestureRecognizerTests {
     assertThat(dragGestureRecognizer.getTranslationX()).isWithin(E).of(dx / 2);
     assertThat(dragGestureRecognizer.getTranslationY()).isWithin(E).of(dy / 2);
 
-    assertThat(listener.states.toArray()).isEqualTo(new Integer[]{POSSIBLE, BEGAN, CHANGED});
+    // Finger up. Centroid is at first finger location and translation is reset.
+    dragGestureRecognizer.onTouchEvent(
+      createMotionEvent(MotionEvent.ACTION_UP, 0, 0));
+    assertThat(dragGestureRecognizer.getCentroidX()).isWithin(E).of(0);
+    assertThat(dragGestureRecognizer.getCentroidY()).isWithin(E).of(0);
+    assertThat(dragGestureRecognizer.getTranslationX()).isWithin(E).of(0);
+    assertThat(dragGestureRecognizer.getTranslationY()).isWithin(E).of(0);
+
+    assertThat(listener.states.toArray()).isEqualTo(new Integer[]{POSSIBLE, BEGAN, CHANGED, RECOGNIZED, POSSIBLE});
   }
 
   private MotionEvent createMotionEvent(int action, float x, float y) {

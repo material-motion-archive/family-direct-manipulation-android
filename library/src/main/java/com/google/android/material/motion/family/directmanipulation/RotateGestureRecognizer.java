@@ -16,6 +16,7 @@
 package com.google.android.material.motion.family.directmanipulation;
 
 import android.graphics.PointF;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.view.MotionEventCompat;
 import android.view.MotionEvent;
 
@@ -155,10 +156,11 @@ public class RotateGestureRecognizer extends GestureRecognizer {
     float x1 = point.x;
     float y1 = point.y;
 
-    return calculateAngle(x0, y0, x1, y1);
+    return angle(x0, y0, x1, y1);
   }
 
-  private float calculateAngle(float x0, float y0, float x1, float y1) {
+  @VisibleForTesting
+  static float angle(float x0, float y0, float x1, float y1) {
     return (float) Math.atan2(y1 - y0, x1 - x0);
   }
 }

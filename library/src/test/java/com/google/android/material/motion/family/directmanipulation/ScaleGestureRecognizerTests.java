@@ -32,6 +32,7 @@ import static com.google.android.material.motion.family.directmanipulation.Gestu
 import static com.google.android.material.motion.family.directmanipulation.GestureRecognizer.CHANGED;
 import static com.google.android.material.motion.family.directmanipulation.GestureRecognizer.POSSIBLE;
 import static com.google.android.material.motion.family.directmanipulation.GestureRecognizer.RECOGNIZED;
+import static com.google.android.material.motion.family.directmanipulation.ScaleGestureRecognizer.dist;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -190,8 +191,8 @@ public class ScaleGestureRecognizerTests {
     TrackingGestureStateChangeListener listener = new TrackingGestureStateChangeListener();
     scaleGestureRecognizer.addStateChangeListener(listener);
     scaleGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));
-    scaleGestureRecognizer.onTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_DOWN, 1, 0, 0, 100,100));
-    scaleGestureRecognizer.onTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_UP, 1, 0, 0, 100,100));
+    scaleGestureRecognizer.onTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_DOWN, 1, 0, 0, 100, 100));
+    scaleGestureRecognizer.onTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_UP, 1, 0, 0, 100, 100));
     scaleGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_UP, 0, 0));
 
     assertThat(scaleGestureRecognizer.getState()).isEqualTo(POSSIBLE);
@@ -239,20 +240,22 @@ public class ScaleGestureRecognizerTests {
     assertThat(scaleGestureRecognizer.getCentroidY()).isWithin(E).of(50);
     assertThat(scaleGestureRecognizer.getScale()).isWithin(E).of(1);
 
-    // Second finger moves [dx, dy]. Centroid moves [dx/2, dy/2], scale is now >1.
+    // Second finger moves [dx, dy]. Centroid moves [dx/2, dy/2], scale is calculated correctly.
     float dx = 505;
     float dy = 507;
     scaleGestureRecognizer.onTouchEvent(
       createMultiTouchMotionEvent(MotionEvent.ACTION_MOVE, 1, 0, 0, 100 + dx, 100 + dy));
     assertThat(scaleGestureRecognizer.getCentroidX()).isWithin(E).of(50 + dx / 2);
     assertThat(scaleGestureRecognizer.getCentroidY()).isWithin(E).of(50 + dy / 2);
-    assertThat(scaleGestureRecognizer.getScale()).isGreaterThan(1f);
+    assertThat(scaleGestureRecognizer.getScale()).isWithin(E).of(
+      dist(0, 0, 100 + dx, 100 + dy) / dist(0, 0, 100, 100));
 
     // Second finger up. State is now reset.
     scaleGestureRecognizer.onTouchEvent(
       createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_UP, 1, 0, 0, 100 + dx, 100 + dy));
     assertThat(scaleGestureRecognizer.getCentroidX()).isWithin(E).of(0);
     assertThat(scaleGestureRecognizer.getCentroidY()).isWithin(E).of(0);
+    assertThat(scaleGestureRecognizer.getScale()).isWithin(E).of(1);
 
     assertThat(listener.states.toArray()).isEqualTo(
       new Integer[]{POSSIBLE, BEGAN, CHANGED, RECOGNIZED, POSSIBLE});

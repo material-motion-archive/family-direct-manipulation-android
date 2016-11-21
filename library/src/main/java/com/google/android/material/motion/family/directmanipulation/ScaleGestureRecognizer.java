@@ -16,6 +16,7 @@
 package com.google.android.material.motion.family.directmanipulation;
 
 import android.graphics.PointF;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.view.MotionEventCompat;
 import android.view.MotionEvent;
 
@@ -150,9 +151,14 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
   private float calculateDistance(
     MotionEvent event, int pointerIndex, float centroidX, float centroidY) {
     PointF rawPoint = calculateRawPoint(event, pointerIndex);
-    float distanceX = rawPoint.x - centroidX;
-    float distanceY = rawPoint.y - centroidY;
 
-    return (float) Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+    return dist(centroidX, centroidY, rawPoint.x, rawPoint.y);
+  }
+
+  @VisibleForTesting
+  static float dist(float x0, float y0, float x1, float y1) {
+    float dx = x1 - x0;
+    float dy = y1 - y0;
+    return (float) Math.sqrt(dx * dx + dy * dy);
   }
 }
