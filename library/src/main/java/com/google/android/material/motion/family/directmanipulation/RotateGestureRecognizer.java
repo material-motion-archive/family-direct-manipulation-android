@@ -31,7 +31,7 @@ public class RotateGestureRecognizer extends GestureRecognizer {
   private float currentAngle;
 
   public boolean onTouchEvent(MotionEvent event) {
-    PointF centroid = calculateCentroid(event, 2);
+    PointF centroid = calculateUntransformedCentroid(event, 2);
     float centroidX = centroid.x;
     float centroidY = centroid.y;
     float angle = calculateAngle(event);
@@ -112,12 +112,12 @@ public class RotateGestureRecognizer extends GestureRecognizer {
   }
 
   @Override
-  public float getCentroidX() {
+  public float getUntransformedCentroidX() {
     return currentCentroidX;
   }
 
   @Override
-  public float getCentroidY() {
+  public float getUntransformedCentroidY() {
     return currentCentroidY;
   }
 
@@ -148,11 +148,11 @@ public class RotateGestureRecognizer extends GestureRecognizer {
       }
     }
 
-    PointF point = calculateRawPoint(event, i0);
+    PointF point = calculateUntransformedPoint(event, i0);
     float x0 = point.x;
     float y0 = point.y;
 
-    point = calculateRawPoint(event, i1);
+    point = calculateUntransformedPoint(event, i1);
     float x1 = point.x;
     float y1 = point.y;
 

@@ -31,7 +31,7 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
   private float currentSpan;
 
   public boolean onTouchEvent(MotionEvent event) {
-    PointF centroid = calculateCentroid(event);
+    PointF centroid = calculateUntransformedCentroid(event);
     float centroidX = centroid.x;
     float centroidY = centroid.y;
     float span = calculateAverageSpan(event, centroidX, centroidY);
@@ -112,12 +112,12 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
   }
 
   @Override
-  public float getCentroidX() {
+  public float getUntransformedCentroidX() {
     return currentCentroidX;
   }
 
   @Override
-  public float getCentroidY() {
+  public float getUntransformedCentroidY() {
     return currentCentroidY;
   }
 
@@ -150,9 +150,9 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
    */
   private float calculateDistance(
     MotionEvent event, int pointerIndex, float centroidX, float centroidY) {
-    PointF rawPoint = calculateRawPoint(event, pointerIndex);
+    PointF untransformedPoint = calculateUntransformedPoint(event, pointerIndex);
 
-    return dist(centroidX, centroidY, rawPoint.x, rawPoint.y);
+    return dist(centroidX, centroidY, untransformedPoint.x, untransformedPoint.y);
   }
 
   @VisibleForTesting

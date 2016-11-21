@@ -65,8 +65,8 @@ public class ScaleGestureRecognizerTests {
   public void defaultState() {
     assertThat(scaleGestureRecognizer.getState()).isEqualTo(POSSIBLE);
     assertThat(scaleGestureRecognizer.getElement()).isEqualTo(element);
-    assertThat(scaleGestureRecognizer.getCentroidX()).isWithin(0).of(0f);
-    assertThat(scaleGestureRecognizer.getCentroidY()).isWithin(0).of(0f);
+    assertThat(scaleGestureRecognizer.getUntransformedCentroidX()).isWithin(0).of(0f);
+    assertThat(scaleGestureRecognizer.getUntransformedCentroidY()).isWithin(0).of(0f);
     assertThat(scaleGestureRecognizer.getScale()).isWithin(0).of(1f);
   }
 
@@ -229,15 +229,15 @@ public class ScaleGestureRecognizerTests {
 
     // First finger down. Centroid is at finger location and scale is 1.
     scaleGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));
-    assertThat(scaleGestureRecognizer.getCentroidX()).isWithin(E).of(0);
-    assertThat(scaleGestureRecognizer.getCentroidY()).isWithin(E).of(0);
+    assertThat(scaleGestureRecognizer.getUntransformedCentroidX()).isWithin(E).of(0);
+    assertThat(scaleGestureRecognizer.getUntransformedCentroidY()).isWithin(E).of(0);
     assertThat(scaleGestureRecognizer.getScale()).isWithin(E).of(1);
 
     // Second finger down. Centroid is in between fingers and scale is 1.
     scaleGestureRecognizer.onTouchEvent(
       createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_DOWN, 1, 0, 0, 100, 100));
-    assertThat(scaleGestureRecognizer.getCentroidX()).isWithin(E).of(50);
-    assertThat(scaleGestureRecognizer.getCentroidY()).isWithin(E).of(50);
+    assertThat(scaleGestureRecognizer.getUntransformedCentroidX()).isWithin(E).of(50);
+    assertThat(scaleGestureRecognizer.getUntransformedCentroidY()).isWithin(E).of(50);
     assertThat(scaleGestureRecognizer.getScale()).isWithin(E).of(1);
 
     // Second finger moves [dx, dy]. Centroid moves [dx/2, dy/2], scale is calculated correctly.
@@ -245,16 +245,16 @@ public class ScaleGestureRecognizerTests {
     float dy = 507;
     scaleGestureRecognizer.onTouchEvent(
       createMultiTouchMotionEvent(MotionEvent.ACTION_MOVE, 1, 0, 0, 100 + dx, 100 + dy));
-    assertThat(scaleGestureRecognizer.getCentroidX()).isWithin(E).of(50 + dx / 2);
-    assertThat(scaleGestureRecognizer.getCentroidY()).isWithin(E).of(50 + dy / 2);
+    assertThat(scaleGestureRecognizer.getUntransformedCentroidX()).isWithin(E).of(50 + dx / 2);
+    assertThat(scaleGestureRecognizer.getUntransformedCentroidY()).isWithin(E).of(50 + dy / 2);
     assertThat(scaleGestureRecognizer.getScale()).isWithin(E).of(
       dist(0, 0, 100 + dx, 100 + dy) / dist(0, 0, 100, 100));
 
     // Second finger up. State is now reset.
     scaleGestureRecognizer.onTouchEvent(
       createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_UP, 1, 0, 0, 100 + dx, 100 + dy));
-    assertThat(scaleGestureRecognizer.getCentroidX()).isWithin(E).of(0);
-    assertThat(scaleGestureRecognizer.getCentroidY()).isWithin(E).of(0);
+    assertThat(scaleGestureRecognizer.getUntransformedCentroidX()).isWithin(E).of(0);
+    assertThat(scaleGestureRecognizer.getUntransformedCentroidY()).isWithin(E).of(0);
     assertThat(scaleGestureRecognizer.getScale()).isWithin(E).of(1);
 
     assertThat(listener.states.toArray()).isEqualTo(

@@ -15,6 +15,7 @@
  */
 package com.google.android.material.motion.family.directmanipulation;
 
+import android.graphics.Matrix;
 import android.support.v4.util.SimpleArrayMap;
 import android.view.MotionEvent;
 import android.view.View;
@@ -33,8 +34,19 @@ import com.google.android.material.motion.runtime.PlanFeatures.NamedPlan;
 public class GesturePerformer extends Performer
   implements ContinuousPerforming, NamedPlanPerforming {
 
+  /* Temporary variables. */
+  private final float[] array = new float[2];
+  private final Matrix matrix = new Matrix();
+  private final Matrix inverse = new Matrix();
+
   private final SimpleArrayMap<Class<? extends GestureRecognizer>, GestureRecognizer> gestureRecognizers =
     new SimpleArrayMap<>();
+
+  private float initialTranslationX;
+  private float initialTranslationY;
+  private float initialScaleX;
+  private float initialScaleY;
+  private float initialRotation;
 
   private IsActiveTokenGenerator isActiveTokenGenerator;
 
@@ -143,21 +155,18 @@ public class GesturePerformer extends Performer
   };
 
   private final GestureStateChangeListener dragGestureListener = new GestureStateChangeListener() {
-    private float initialTranslationX;
-    private float initialTranslationY;
 
     @Override
     public void onStateChanged(GestureRecognizer gestureRecognizer) {
       View target = getTarget();
-      DragGestureRecognizer dragGestureRecognizer = (DragGestureRecognizer) gestureRecognizer;
-      switch (dragGestureRecognizer.getState()) {
+      switch (gestureRecognizer.getState()) {
         case GestureRecognizer.BEGAN:
           initialTranslationX = target.getTranslationX();
           initialTranslationY = target.getTranslationY();
           break;
         case GestureRecognizer.CHANGED:
-          float translationX = dragGestureRecognizer.getTranslationX();
-          float translationY = dragGestureRecognizer.getTranslationY();
+          float translationX = ((DragGestureRecognizer) gestureRecognizer).getTranslationX();
+          float translationY = ((DragGestureRecognizer) gestureRecognizer).getTranslationY();
 
           target.setTranslationX(initialTranslationX + translationX);
           target.setTranslationY(initialTranslationY + translationY);
@@ -167,45 +176,110 @@ public class GesturePerformer extends Performer
   };
 
   private final GestureStateChangeListener scaleGestureListener = new GestureStateChangeListener() {
-    private float initialScaleX;
-    private float initialScaleY;
 
     @Override
     public void onStateChanged(GestureRecognizer gestureRecognizer) {
       View target = getTarget();
-      ScaleGestureRecognizer scaleGestureRecognizer = (ScaleGestureRecognizer) gestureRecognizer;
-      switch (scaleGestureRecognizer.getState()) {
+      switch (gestureRecognizer.getState()) {
         case GestureRecognizer.BEGAN:
           initialScaleX = target.getScaleX();
           initialScaleY = target.getScaleY();
           break;
         case GestureRecognizer.CHANGED:
-          float scale = scaleGestureRecognizer.getScale();
+          float scale = ((ScaleGestureRecognizer) gestureRecognizer).getScale();
 
           target.setScaleX(initialScaleX * scale);
           target.setScaleY(initialScaleY * scale);
+
+          if (gestureRecognizers.containsKey(DragGestureRecognizer.class)) {
+            setPivotToCentroid(target, gestureRecognizer);
+          }
+          break;
+        case GestureRecognizer.RECOGNIZED:
+        case GestureRecognizer.CANCELLED:
+          if (gestureRecognizers.containsKey(DragGestureRecognizer.class)) {
+            resetPivot(target);
+          }
           break;
       }
     }
   };
 
   private final GestureStateChangeListener rotateGestureListener = new GestureStateChangeListener() {
-    private float initialRotation;
 
     @Override
     public void onStateChanged(GestureRecognizer gestureRecognizer) {
       View target = getTarget();
-      RotateGestureRecognizer rotateGestureRecognizer = (RotateGestureRecognizer) gestureRecognizer;
-      switch (rotateGestureRecognizer.getState()) {
+      switch (gestureRecognizer.getState()) {
         case GestureRecognizer.BEGAN:
           initialRotation = target.getRotation();
           break;
         case GestureRecognizer.CHANGED:
-          float rotation = rotateGestureRecognizer.getRotation();
+          float rotation = ((RotateGestureRecognizer) gestureRecognizer).getRotation();
 
           target.setRotation((float) (initialRotation + rotation * (180 / Math.PI)));
+
+          if (gestureRecognizers.containsKey(DragGestureRecognizer.class)) {
+            setPivotToCentroid(target, gestureRecognizer);
+          }
+          break;
+        case GestureRecognizer.RECOGNIZED:
+        case GestureRecognizer.CANCELLED:
+          if (gestureRecognizers.containsKey(DragGestureRecognizer.class)) {
+            resetPivot(target);
+          }
           break;
       }
     }
   };
+
+  private void setPivotToCentroid(View target, GestureRecognizer gestureRecognizer) {
+    setPivotToCentroid(
+      target,
+      gestureRecognizer.getCentroidX(),
+      gestureRecognizer.getCentroidY(),
+      gestureRecognizer.getUntransformedCentroidX(),
+      gestureRecognizer.getUntransformedCentroidY());
+  }
+
+  private void resetPivot(View target) {
+    float centroidX = target.getWidth() / 2f;
+    float centroidY = target.getHeight() / 2f;
+
+    array[0] = centroidX;
+    array[1] = centroidY;
+    GestureRecognizer.getTransformationMatrix(target, matrix, inverse);
+    matrix.mapPoints(array);
+
+    float untransformedCentroidX = array[0];
+    float untransformedCentroidY = array[1];
+
+    setPivotToCentroid(
+      target, centroidX, centroidY, untransformedCentroidX, untransformedCentroidY);
+  }
+
+  private void setPivotToCentroid(
+    View target,
+    float centroidX,
+    float centroidY,
+    float untransformedCentroidX,
+    float untransformedCentroidY) {
+    target.setPivotX(centroidX);
+    target.setPivotY(centroidY);
+
+    // Ensure that the pivot is over the untransformed centroid.
+
+    array[0] = target.getPivotX();
+    array[1] = target.getPivotY();
+    GestureRecognizer.getTransformationMatrix(target, matrix, inverse);
+    matrix.mapPoints(array);
+
+    float adjustX = untransformedCentroidX - array[0];
+    float adjustY = untransformedCentroidY - array[1];
+
+    initialTranslationX += adjustX;
+    initialTranslationY += adjustY;
+    target.setTranslationX(target.getTranslationX() + adjustX);
+    target.setTranslationY(target.getTranslationY() + adjustY);
+  }
 }

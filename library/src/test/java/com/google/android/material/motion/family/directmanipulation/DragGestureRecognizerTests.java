@@ -64,8 +64,8 @@ public class DragGestureRecognizerTests {
   public void defaultState() {
     assertThat(dragGestureRecognizer.getState()).isEqualTo(POSSIBLE);
     assertThat(dragGestureRecognizer.getElement()).isEqualTo(element);
-    assertThat(dragGestureRecognizer.getCentroidX()).isWithin(0).of(0f);
-    assertThat(dragGestureRecognizer.getCentroidY()).isWithin(0).of(0f);
+    assertThat(dragGestureRecognizer.getUntransformedCentroidX()).isWithin(0).of(0f);
+    assertThat(dragGestureRecognizer.getUntransformedCentroidY()).isWithin(0).of(0f);
     assertThat(dragGestureRecognizer.getTranslationX()).isWithin(0).of(0f);
     assertThat(dragGestureRecognizer.getTranslationY()).isWithin(0).of(0f);
     assertThat(dragGestureRecognizer.getVelocityX()).isWithin(0).of(0f);
@@ -194,16 +194,16 @@ public class DragGestureRecognizerTests {
 
     // First finger down. Centroid is at finger location and translation is 0.
     dragGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));
-    assertThat(dragGestureRecognizer.getCentroidX()).isWithin(E).of(0);
-    assertThat(dragGestureRecognizer.getCentroidY()).isWithin(E).of(0);
+    assertThat(dragGestureRecognizer.getUntransformedCentroidX()).isWithin(E).of(0);
+    assertThat(dragGestureRecognizer.getUntransformedCentroidY()).isWithin(E).of(0);
     assertThat(dragGestureRecognizer.getTranslationX()).isWithin(E).of(0);
     assertThat(dragGestureRecognizer.getTranslationY()).isWithin(E).of(0);
 
     // Second finger down. Centroid is in between fingers and translation is 0.
     dragGestureRecognizer.onTouchEvent(
       createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_DOWN, 1, 0, 0, 100, 100));
-    assertThat(dragGestureRecognizer.getCentroidX()).isWithin(E).of(50);
-    assertThat(dragGestureRecognizer.getCentroidY()).isWithin(E).of(50);
+    assertThat(dragGestureRecognizer.getUntransformedCentroidX()).isWithin(E).of(50);
+    assertThat(dragGestureRecognizer.getUntransformedCentroidY()).isWithin(E).of(50);
     assertThat(dragGestureRecognizer.getTranslationX()).isWithin(E).of(0);
     assertThat(dragGestureRecognizer.getTranslationY()).isWithin(E).of(0);
 
@@ -212,24 +212,24 @@ public class DragGestureRecognizerTests {
     float dy = 507;
     dragGestureRecognizer.onTouchEvent(
       createMultiTouchMotionEvent(MotionEvent.ACTION_MOVE, 1, 0, 0, 100 + dx, 100 + dy));
-    assertThat(dragGestureRecognizer.getCentroidX()).isWithin(E).of(50 + dx / 2);
-    assertThat(dragGestureRecognizer.getCentroidY()).isWithin(E).of(50 + dy / 2);
+    assertThat(dragGestureRecognizer.getUntransformedCentroidX()).isWithin(E).of(50 + dx / 2);
+    assertThat(dragGestureRecognizer.getUntransformedCentroidY()).isWithin(E).of(50 + dy / 2);
     assertThat(dragGestureRecognizer.getTranslationX()).isWithin(E).of(dx / 2);
     assertThat(dragGestureRecognizer.getTranslationY()).isWithin(E).of(dy / 2);
 
     // Second finger up. Centroid is at first finger location and translation stays the same.
     dragGestureRecognizer.onTouchEvent(
       createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_UP, 1, 0, 0, 100 + dx, 100 + dy));
-    assertThat(dragGestureRecognizer.getCentroidX()).isWithin(E).of(0);
-    assertThat(dragGestureRecognizer.getCentroidY()).isWithin(E).of(0);
+    assertThat(dragGestureRecognizer.getUntransformedCentroidX()).isWithin(E).of(0);
+    assertThat(dragGestureRecognizer.getUntransformedCentroidY()).isWithin(E).of(0);
     assertThat(dragGestureRecognizer.getTranslationX()).isWithin(E).of(dx / 2);
     assertThat(dragGestureRecognizer.getTranslationY()).isWithin(E).of(dy / 2);
 
     // Finger up. Centroid is at first finger location and translation is reset.
     dragGestureRecognizer.onTouchEvent(
       createMotionEvent(MotionEvent.ACTION_UP, 0, 0));
-    assertThat(dragGestureRecognizer.getCentroidX()).isWithin(E).of(0);
-    assertThat(dragGestureRecognizer.getCentroidY()).isWithin(E).of(0);
+    assertThat(dragGestureRecognizer.getUntransformedCentroidX()).isWithin(E).of(0);
+    assertThat(dragGestureRecognizer.getUntransformedCentroidY()).isWithin(E).of(0);
     assertThat(dragGestureRecognizer.getTranslationX()).isWithin(E).of(0);
     assertThat(dragGestureRecognizer.getTranslationY()).isWithin(E).of(0);
 

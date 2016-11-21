@@ -41,7 +41,7 @@ public class DragGestureRecognizer extends GestureRecognizer {
     }
     velocityTracker.addMovement(copy);
 
-    PointF centroid = calculateCentroid(event);
+    PointF centroid = calculateUntransformedCentroid(event);
     float centroidX = centroid.x;
     float centroidY = centroid.y;
 
@@ -157,12 +157,12 @@ public class DragGestureRecognizer extends GestureRecognizer {
   }
 
   @Override
-  public float getCentroidX() {
+  public float getUntransformedCentroidX() {
     return currentCentroidX;
   }
 
   @Override
-  public float getCentroidY() {
+  public float getUntransformedCentroidY() {
     return currentCentroidY;
   }
 }

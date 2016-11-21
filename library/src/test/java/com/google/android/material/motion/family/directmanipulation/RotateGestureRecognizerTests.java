@@ -65,8 +65,8 @@ public class RotateGestureRecognizerTests {
   public void defaultState() {
     assertThat(rotateGestureRecognizer.getState()).isEqualTo(POSSIBLE);
     assertThat(rotateGestureRecognizer.getElement()).isEqualTo(element);
-    assertThat(rotateGestureRecognizer.getCentroidX()).isWithin(0).of(0f);
-    assertThat(rotateGestureRecognizer.getCentroidY()).isWithin(0).of(0f);
+    assertThat(rotateGestureRecognizer.getUntransformedCentroidX()).isWithin(0).of(0f);
+    assertThat(rotateGestureRecognizer.getUntransformedCentroidY()).isWithin(0).of(0f);
     assertThat(rotateGestureRecognizer.getRotation()).isWithin(0).of(0f);
   }
 
@@ -229,15 +229,15 @@ public class RotateGestureRecognizerTests {
 
     // First finger down. Centroid is at finger location and rotation is 0.
     rotateGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));
-    assertThat(rotateGestureRecognizer.getCentroidX()).isWithin(E).of(0);
-    assertThat(rotateGestureRecognizer.getCentroidY()).isWithin(E).of(0);
+    assertThat(rotateGestureRecognizer.getUntransformedCentroidX()).isWithin(E).of(0);
+    assertThat(rotateGestureRecognizer.getUntransformedCentroidY()).isWithin(E).of(0);
     assertThat(rotateGestureRecognizer.getRotation()).isWithin(E).of(0);
 
     // Second finger down. Centroid is in between fingers and rotation is 1.
     rotateGestureRecognizer.onTouchEvent(
       createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_DOWN, 1, 0, 0, 100, 100));
-    assertThat(rotateGestureRecognizer.getCentroidX()).isWithin(E).of(50);
-    assertThat(rotateGestureRecognizer.getCentroidY()).isWithin(E).of(50);
+    assertThat(rotateGestureRecognizer.getUntransformedCentroidX()).isWithin(E).of(50);
+    assertThat(rotateGestureRecognizer.getUntransformedCentroidY()).isWithin(E).of(50);
     assertThat(rotateGestureRecognizer.getRotation()).isWithin(E).of(0);
 
     // Second finger moves [dx, dy]. Centroid moves [dx/2, dy/2], rotation is calculated correctly.
@@ -245,16 +245,16 @@ public class RotateGestureRecognizerTests {
     float dy = 507;
     rotateGestureRecognizer.onTouchEvent(
       createMultiTouchMotionEvent(MotionEvent.ACTION_MOVE, 1, 0, 0, 100 + dx, 100 + dy));
-    assertThat(rotateGestureRecognizer.getCentroidX()).isWithin(E).of(50 + dx / 2);
-    assertThat(rotateGestureRecognizer.getCentroidY()).isWithin(E).of(50 + dy / 2);
+    assertThat(rotateGestureRecognizer.getUntransformedCentroidX()).isWithin(E).of(50 + dx / 2);
+    assertThat(rotateGestureRecognizer.getUntransformedCentroidY()).isWithin(E).of(50 + dy / 2);
     assertThat(rotateGestureRecognizer.getRotation()).isWithin(E).of(
       angle(0, 0, 100 + dx, 100 + dy) - angle(0, 0, 100, 100));
 
     // Second finger up. State is now reset.
     rotateGestureRecognizer.onTouchEvent(
       createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_UP, 1, 0, 0, 100 + dx, 100 + dy));
-    assertThat(rotateGestureRecognizer.getCentroidX()).isWithin(E).of(0);
-    assertThat(rotateGestureRecognizer.getCentroidY()).isWithin(E).of(0);
+    assertThat(rotateGestureRecognizer.getUntransformedCentroidX()).isWithin(E).of(0);
+    assertThat(rotateGestureRecognizer.getUntransformedCentroidY()).isWithin(E).of(0);
     assertThat(rotateGestureRecognizer.getRotation()).isWithin(E).of(0);
 
     assertThat(listener.states.toArray()).isEqualTo(

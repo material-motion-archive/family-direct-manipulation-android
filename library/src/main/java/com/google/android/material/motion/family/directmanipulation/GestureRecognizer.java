@@ -102,6 +102,12 @@ public abstract class GestureRecognizer {
   private final PointF pointF = new PointF();
 
   /**
+   * Inverse transformation matrix that is updated on a untransformed point calculation.
+   * Use this to convert untransformed points back to the element's local coordinate system.
+   */
+  private final Matrix inverse = new Matrix();
+
+  /**
    * Touch slop for drag. Amount of pixels that the centroid needs to move in either axes.
    */
   protected int dragSlop = DEFAULT;
@@ -180,6 +186,44 @@ public abstract class GestureRecognizer {
   }
 
   /**
+   * Returns the centroidX position of the current gesture in the local coordinate space of the
+   * {@link #element}.
+   */
+  public final float getCentroidX() {
+    array[0] = getUntransformedCentroidX();
+    array[1] = getUntransformedCentroidY();
+
+    inverse.mapPoints(array);
+
+    return array[0];
+  }
+
+  /**
+   * Returns the centroidY position of the current gesture in the local coordinate space of the
+   * {@link #element}.
+   */
+  public final float getCentroidY() {
+    array[0] = getUntransformedCentroidX();
+    array[1] = getUntransformedCentroidY();
+
+    inverse.mapPoints(array);
+
+    return array[1];
+  }
+
+  /**
+   * Returns the untransformed centroidX position of the current gesture in the local coordinate
+   * space of {@link #element}'s parent.
+   */
+  public abstract float getUntransformedCentroidX();
+
+  /**
+   * Returns the untransformed centroidY position of the current gesture in the local coordinate
+   * space of {@link #element}'s parent.
+   */
+  public abstract float getUntransformedCentroidY();
+
+  /**
    * Sets the state of the gesture recognizer and notifies all listeners.
    */
   protected void setState(@GestureRecognizerState int state) {
@@ -207,29 +251,13 @@ public abstract class GestureRecognizer {
   }
 
   /**
-   * Returns the centroidX position of the current gesture.
-   * <p>
-   * This value is only useful in relation to other values of {@link #getCentroidX()}. It is not
-   * guaranteed to be useful in relation to any coordinate spaces.
-   */
-  public abstract float getCentroidX();
-
-  /**
-   * Returns the centroidY position of the current gesture.
-   * <p>
-   * This value is only useful in relation to other values of {@link #getCentroidX()}. It is not
-   * guaranteed to be useful in relation to any coordinate spaces.
-   */
-  public abstract float getCentroidY();
-
-  /**
-   * Calculates the centroid of all the active pointers in the given motion event.
+   * Calculates the untransformed centroid of all the active pointers in the given motion event.
    *
    * @return A point representing the centroid. The caller should read the values immediately as
    * the object may be reused in other calculations.
    */
-  protected PointF calculateCentroid(MotionEvent event) {
-    return calculateCentroid(event, Integer.MAX_VALUE);
+  protected PointF calculateUntransformedCentroid(MotionEvent event) {
+    return calculateUntransformedCentroid(event, Integer.MAX_VALUE);
   }
 
   /**
@@ -238,7 +266,7 @@ public abstract class GestureRecognizer {
    * @return A point representing the centroid. The caller should read the values immediately as
    * the object may be reused in other calculations.
    */
-  protected PointF calculateCentroid(MotionEvent event, int n) {
+  protected PointF calculateUntransformedCentroid(MotionEvent event, int n) {
     int action = MotionEventCompat.getActionMasked(event);
     int index = MotionEventCompat.getActionIndex(event);
 
@@ -250,8 +278,8 @@ public abstract class GestureRecognizer {
         continue;
       }
 
-      sumX += calculateRawPoint(event, i).x;
-      sumY += calculateRawPoint(event, i).y;
+      sumX += calculateUntransformedPoint(event, i).x;
+      sumY += calculateUntransformedPoint(event, i).y;
       num++;
     }
 
@@ -260,28 +288,42 @@ public abstract class GestureRecognizer {
   }
 
   /**
-   * Calculates the raw x and y of the pointer given by the pointer index in the given motion event.
+   * Calculates the untransformed x and y of the pointer given by the pointer index in the given
+   * motion event.
    * <p>
-   * A raw coordinate represents the location of a pointer that is not transformed by the element's
-   * transformation matrix. A raw coordinate of a pointer is only valid in relation those of other
-   * pointers in the motion event. {@code calculateRawPoint(event, 0).x} is not necessarily equal to
-   * {@code event.getRawX()}.
+   * An untransformed coordinate represents the location of a pointer that is not transformed by
+   * the element's transformation matrix. {@code calculateUntransformedPoint(event, 0).x} is not
+   * necessarily equal to {@code event.getRawX()}.
    *
-   * @return A point representing the raw x and y. The caller should read the values immediately as
-   * the object may be reused in other calculations.
+   * @return A point representing the untransformed x and y. The caller should read the values
+   * immediately as the object may be reused in other calculations.
    */
-  protected PointF calculateRawPoint(MotionEvent event, int pointerIndex) {
-    matrix.reset();
-    matrix.postScale(element.getScaleX(), element.getScaleY(), element.getPivotX(), element.getPivotY());
-    matrix.postRotate(element.getRotation(), element.getPivotX(), element.getPivotY());
-    matrix.postTranslate(element.getTranslationX(), element.getTranslationY());
-
+  protected PointF calculateUntransformedPoint(MotionEvent event, int pointerIndex) {
     array[0] = event.getX(pointerIndex);
     array[1] = event.getY(pointerIndex);
 
+    getTransformationMatrix(element, matrix, inverse);
     matrix.mapPoints(array);
     pointF.set(array[0], array[1]);
 
     return pointF;
+  }
+
+  /**
+   * Calculates the transformation matrices that can convert from local to untransformed coordinate
+   * spaces.
+   *
+   * @param matrix  This output matrix can convert from local to untransformed coordinate space.
+   * @param inverse This output matrix can convert from untransformed to local coordinate space.
+   */
+  public static void getTransformationMatrix(View element, Matrix matrix, Matrix inverse) {
+    matrix.reset();
+    matrix.postScale(
+      element.getScaleX(), element.getScaleY(), element.getPivotX(), element.getPivotY());
+    matrix.postRotate(element.getRotation(), element.getPivotX(), element.getPivotY());
+    matrix.postTranslate(element.getTranslationX(), element.getTranslationY());
+
+    // Save the inverse matrix.
+    matrix.invert(inverse);
   }
 }

@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     setContentView(R.layout.main_activity);
 
     target = findViewById(R.id.target);
+    target.setBackgroundDrawable(new CheckerboardDrawable());
 
     RemixerBinder.bind(this);
     RemixerFragment remixerFragment = RemixerFragment.newInstance();
