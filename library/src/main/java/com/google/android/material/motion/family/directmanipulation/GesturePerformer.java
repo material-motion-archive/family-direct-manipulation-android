@@ -23,12 +23,15 @@ import android.view.View.OnTouchListener;
 import com.google.android.material.motion.family.directmanipulation.GestureRecognizer.GestureStateChangeListener;
 import com.google.android.material.motion.runtime.Performer;
 import com.google.android.material.motion.runtime.PerformerFeatures.ContinuousPerforming;
+import com.google.android.material.motion.runtime.PerformerFeatures.NamedPlanPerforming;
 import com.google.android.material.motion.runtime.PlanFeatures.BasePlan;
+import com.google.android.material.motion.runtime.PlanFeatures.NamedPlan;
 
 /**
  * A performer that uses a {@link DragGestureRecognizer} to translate a {@link View} target.
  */
-public class GesturePerformer extends Performer implements ContinuousPerforming {
+public class GesturePerformer extends Performer
+  implements ContinuousPerforming, NamedPlanPerforming {
 
   private final SimpleArrayMap<Class<? extends GestureRecognizer>, GestureRecognizer> gestureRecognizers =
     new SimpleArrayMap<>();
@@ -38,13 +41,6 @@ public class GesturePerformer extends Performer implements ContinuousPerforming 
   @Override
   public void setIsActiveTokenGenerator(IsActiveTokenGenerator isActiveTokenGenerator) {
     this.isActiveTokenGenerator = isActiveTokenGenerator;
-  }
-
-  @Override
-  protected void onInitialize(Object target) {
-    super.onInitialize(target);
-
-    ((View) target).setOnTouchListener(onTouchListener);
   }
 
   @Override
@@ -58,6 +54,32 @@ public class GesturePerformer extends Performer implements ContinuousPerforming 
     } else {
       throw new IllegalArgumentException("Plan type not supported for " + plan);
     }
+  }
+
+  @Override
+  public void addPlan(NamedPlan plan, String name) {
+    addPlan(plan);
+  }
+
+  @Override
+  public void removePlan(String name) {
+    Class<? extends GestureRecognizer> klass;
+    switch (name) {
+      case "draggable":
+        klass = DragGestureRecognizer.class;
+        break;
+      case "pinchable":
+        klass = ScaleGestureRecognizer.class;
+        break;
+      case "rotatable":
+        klass = RotateGestureRecognizer.class;
+        break;
+      default:
+        return;
+    }
+
+    GestureRecognizer gestureRecognizer = gestureRecognizers.remove(klass);
+    gestureRecognizer.setElement(null);
   }
 
   private void addDraggable(Draggable plan) {
@@ -77,7 +99,9 @@ public class GesturePerformer extends Performer implements ContinuousPerforming 
 
   private void addGesturePlanCommon(GesturePlan plan) {
     if (plan.gestureRecognizer.getElement() == null) {
-      plan.gestureRecognizer.setElement((View) getTarget());
+      View element = getTarget();
+      element.setOnTouchListener(onTouchListener);
+      plan.gestureRecognizer.setElement(element);
     }
     plan.gestureRecognizer.addStateChangeListener(tokenGestureListener);
     gestureRecognizers.put(plan.gestureRecognizer.getClass(), plan.gestureRecognizer);
