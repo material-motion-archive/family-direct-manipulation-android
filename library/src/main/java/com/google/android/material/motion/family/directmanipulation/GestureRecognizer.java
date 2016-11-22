@@ -94,7 +94,7 @@ public abstract class GestureRecognizer {
   }
 
   protected static final int PIXELS_PER_SECOND = 1000;
-  private static final int DEFAULT = -1;
+  protected static final int DEFAULT_SLOP = -1;
 
   /* Temporary variables. */
   private final Matrix matrix = new Matrix();
@@ -107,18 +107,6 @@ public abstract class GestureRecognizer {
    */
   private final Matrix inverse = new Matrix();
 
-  /**
-   * Touch slop for drag. Amount of pixels that the centroid needs to move in either axes.
-   */
-  protected int dragSlop = DEFAULT;
-  /**
-   * Touch slop for scale. Amount of pixels that the span needs to change.
-   */
-  protected int scaleSlop = DEFAULT;
-  /**
-   * Touch slop for rotate. Amount of radians that the angle needs to change.
-   */
-  protected float rotateSlop = DEFAULT;
   protected float maximumFlingVelocity;
 
   private final List<GestureStateChangeListener> listeners = new CopyOnWriteArrayList<>();
@@ -136,15 +124,6 @@ public abstract class GestureRecognizer {
 
     if (element != null) {
       Context context = element.getContext();
-      if (dragSlop == DEFAULT) {
-        this.dragSlop = ViewConfiguration.get(context).getScaledTouchSlop();
-      }
-      if (scaleSlop == DEFAULT) {
-        this.scaleSlop = ViewConfiguration.get(context).getScaledTouchSlop();
-      }
-      if (rotateSlop == DEFAULT) {
-        this.rotateSlop = (float) (Math.PI / 180);
-      }
       this.maximumFlingVelocity = ViewConfiguration.get(context).getScaledMaximumFlingVelocity();
     }
   }

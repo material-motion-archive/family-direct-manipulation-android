@@ -15,20 +15,41 @@
  */
 package com.google.android.material.motion.family.directmanipulation;
 
+import android.content.Context;
 import android.graphics.PointF;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.view.MotionEventCompat;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewConfiguration;
 
 /**
  * A gesture recognizer that generates scale events.
  */
 public class ScaleGestureRecognizer extends GestureRecognizer {
+
+  /**
+   * Touch slop for scale. Amount of pixels that the span needs to change.
+   */
+  @VisibleForTesting
+  int scaleSlop = DEFAULT_SLOP;
+
   private float currentCentroidX;
   private float currentCentroidY;
 
   private float initialSpan;
   private float currentSpan;
+
+  @Override
+  public void setElement(@Nullable View element) {
+    super.setElement(element);
+
+    if (scaleSlop == DEFAULT_SLOP) {
+      Context context = element.getContext();
+      this.scaleSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+    }
+  }
 
   public boolean onTouchEvent(MotionEvent event) {
     PointF centroid = calculateUntransformedCentroid(event);

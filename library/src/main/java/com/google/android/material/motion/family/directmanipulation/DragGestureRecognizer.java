@@ -15,15 +15,27 @@
  */
 package com.google.android.material.motion.family.directmanipulation;
 
+import android.content.Context;
 import android.graphics.PointF;
+import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.support.v4.view.MotionEventCompat;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
+import android.view.View;
+import android.view.ViewConfiguration;
 
 /**
  * A gesture recognizer that generates translation events.
  */
 public class DragGestureRecognizer extends GestureRecognizer {
+
+  /**
+   * Touch slop for drag. Amount of pixels that the centroid needs to move in either axes.
+   */
+  @VisibleForTesting
+  int dragSlop = DEFAULT_SLOP;
+
   private VelocityTracker velocityTracker;
 
   private float initialCentroidX;
@@ -32,6 +44,16 @@ public class DragGestureRecognizer extends GestureRecognizer {
   private float currentCentroidY;
   private float currentVelocityX;
   private float currentVelocityY;
+
+  @Override
+  public void setElement(@Nullable View element) {
+    super.setElement(element);
+
+    if (dragSlop == DEFAULT_SLOP) {
+      Context context = element.getContext();
+      this.dragSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+    }
+  }
 
   public boolean onTouchEvent(MotionEvent event) {
     MotionEvent copy = MotionEvent.obtain(event);

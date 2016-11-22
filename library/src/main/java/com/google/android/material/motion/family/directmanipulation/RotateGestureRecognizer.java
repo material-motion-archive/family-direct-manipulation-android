@@ -15,20 +15,39 @@
  */
 package com.google.android.material.motion.family.directmanipulation;
 
+import android.content.Context;
 import android.graphics.PointF;
+import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.v4.view.MotionEventCompat;
 import android.view.MotionEvent;
+import android.view.View;
 
 /**
  * A gesture recognizer that generates scale events.
  */
 public class RotateGestureRecognizer extends GestureRecognizer {
+
+  /**
+   * Touch slop for rotate. Amount of radians that the angle needs to change.
+   */
+  @VisibleForTesting
+  float rotateSlop = DEFAULT_SLOP;
+
   private float currentCentroidX;
   private float currentCentroidY;
 
   private float initialAngle;
   private float currentAngle;
+
+  @Override
+  public void setElement(@Nullable View element) {
+    super.setElement(element);
+
+    if (rotateSlop == DEFAULT_SLOP) {
+      this.rotateSlop = (float) (Math.PI / 180);
+    }
+  }
 
   public boolean onTouchEvent(MotionEvent event) {
     PointF centroid = calculateUntransformedCentroid(event, 2);

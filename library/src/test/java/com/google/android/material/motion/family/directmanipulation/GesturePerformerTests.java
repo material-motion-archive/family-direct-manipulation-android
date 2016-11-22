@@ -61,7 +61,7 @@ public class GesturePerformerTests {
   @Test
   public void makesViewDraggable() {
     Draggable plan = new Draggable();
-    plan.gestureRecognizer.dragSlop = 0;
+    ((DragGestureRecognizer) plan.gestureRecognizer).dragSlop = 0;
 
     runtime.addPlan(plan, target);
 
@@ -76,7 +76,7 @@ public class GesturePerformerTests {
   @Test
   public void makesViewPinchable() {
     Pinchable plan = new Pinchable();
-    plan.gestureRecognizer.scaleSlop = 0;
+    ((ScaleGestureRecognizer) plan.gestureRecognizer).scaleSlop = 0;
 
     runtime.addPlan(plan, target);
 
@@ -95,7 +95,7 @@ public class GesturePerformerTests {
   @Test
   public void makesViewRotatable() {
     Rotatable plan = new Rotatable();
-    plan.gestureRecognizer.rotateSlop = 0;
+    ((RotateGestureRecognizer) plan.gestureRecognizer).rotateSlop = 0;
 
     runtime.addPlan(plan, target);
 
@@ -183,11 +183,11 @@ public class GesturePerformerTests {
   @Test
   public void draggablePinchableAndRotatable() {
     Draggable draggable = new Draggable();
-    draggable.gestureRecognizer.dragSlop = 0;
+    ((DragGestureRecognizer) draggable.gestureRecognizer).dragSlop = 0;
     Pinchable pinchable = new Pinchable();
-    pinchable.gestureRecognizer.scaleSlop = 0;
+    ((ScaleGestureRecognizer) pinchable.gestureRecognizer).scaleSlop = 0;
     Rotatable rotatable = new Rotatable();
-    rotatable.gestureRecognizer.rotateSlop = 0;
+    ((RotateGestureRecognizer) rotatable.gestureRecognizer).rotateSlop = 0;
 
     runtime.addPlan(draggable, target);
     runtime.addPlan(pinchable, target);
