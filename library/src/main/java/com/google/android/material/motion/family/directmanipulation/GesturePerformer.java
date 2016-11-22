@@ -87,7 +87,8 @@ public class GesturePerformer extends Performer
         klass = RotateGestureRecognizer.class;
         break;
       default:
-        return;
+        throw new IllegalArgumentException(
+          "Only \"draggable\", \"pinchable\", or \"rotatable\" names may be used.");
     }
 
     GestureRecognizer gestureRecognizer = gestureRecognizers.remove(klass);

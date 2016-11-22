@@ -15,10 +15,8 @@
  */
 package com.google.android.material.motion.family.directmanipulation;
 
-import com.google.android.material.motion.runtime.PerformerFeatures;
 import com.google.android.material.motion.runtime.PerformerFeatures.NamedPlanPerforming;
 import com.google.android.material.motion.runtime.Plan;
-import com.google.android.material.motion.runtime.PlanFeatures;
 import com.google.android.material.motion.runtime.PlanFeatures.NamedPlan;
 
 /**

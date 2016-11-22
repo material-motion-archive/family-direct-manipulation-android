@@ -52,6 +52,7 @@ public class GesturePerformerTests {
     runtime = new Runtime();
     Context context = Robolectric.setupActivity(Activity.class);
     target = new View(context);
+    target.layout(0, 0, 50, 75);
 
     eventDownTime = 0;
     eventTime = 0;
@@ -63,8 +64,6 @@ public class GesturePerformerTests {
     plan.gestureRecognizer.dragSlop = 0;
 
     runtime.addPlan(plan, target);
-
-    target.layout(0, 0, 50, 75);
 
     target.dispatchTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));
     target.dispatchTouchEvent(createMotionEvent(MotionEvent.ACTION_MOVE, 100, 200));
@@ -80,8 +79,6 @@ public class GesturePerformerTests {
     plan.gestureRecognizer.scaleSlop = 0;
 
     runtime.addPlan(plan, target);
-
-    target.layout(0, 0, 50, 75);
 
     target.dispatchTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));
     // Span = 100.
@@ -101,8 +98,6 @@ public class GesturePerformerTests {
     plan.gestureRecognizer.rotateSlop = 0;
 
     runtime.addPlan(plan, target);
-
-    target.layout(0, 0, 50, 75);
 
     target.dispatchTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));
     // Angle = 0 degrees.
@@ -137,6 +132,86 @@ public class GesturePerformerTests {
         return GesturePerformer.class;
       }
     });
+  }
+
+  @Test
+  public void namedPlanSupport() {
+    Draggable draggable = new Draggable();
+    Pinchable pinchable = new Pinchable();
+    Rotatable rotatable = new Rotatable();
+
+    runtime.addNamedPlan(draggable, "draggable", target);
+    runtime.addNamedPlan(pinchable, "pinchable", target);
+    runtime.addNamedPlan(rotatable, "rotatable", target);
+
+    runtime.removeNamedPlan("draggable", target);
+    runtime.removeNamedPlan("pinchable", target);
+    runtime.removeNamedPlan("rotatable", target);
+
+    // Move 2 fingers around.
+    target.dispatchTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));
+    target.dispatchTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_DOWN, 1, 0, 0, 100, 0));
+    target.dispatchTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_MOVE, 1, 0, 0, 200, 300));
+    target.dispatchTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_UP, 1, 0, 0, 200, 300));
+    target.dispatchTouchEvent(createMotionEvent(MotionEvent.ACTION_UP, 0, 0));
+
+    // No effect.
+    assertThat(target.getTranslationX()).isWithin(E).of(0f);
+    assertThat(target.getTranslationY()).isWithin(E).of(0f);
+    assertThat(target.getScaleX()).isWithin(E).of(1f);
+    assertThat(target.getScaleY()).isWithin(E).of(1f);
+    assertThat(target.getRotation()).isWithin(E).of(0f);
+  }
+
+  @Test
+  public void removeNonExistentNamedPlanIsOk() {
+    runtime.removeNamedPlan("draggable", target);
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void unexpectedNameCrashes() {
+    runtime.addNamedPlan(new Draggable(), "foobar", target);
+    runtime.removeNamedPlan("foobar", target);
+  }
+
+  @Test(expected = NullPointerException.class)
+  public void mismatchedNameCrashes() {
+    runtime.addNamedPlan(new Draggable(), "pinchable", target);
+    runtime.removeNamedPlan("pinchable", target);
+  }
+
+  @Test
+  public void draggablePinchableAndRotatable() {
+    Draggable draggable = new Draggable();
+    draggable.gestureRecognizer.dragSlop = 0;
+    Pinchable pinchable = new Pinchable();
+    pinchable.gestureRecognizer.scaleSlop = 0;
+    Rotatable rotatable = new Rotatable();
+    rotatable.gestureRecognizer.rotateSlop = 0;
+
+    runtime.addPlan(draggable, target);
+    runtime.addPlan(pinchable, target);
+    runtime.addPlan(rotatable, target);
+
+    target.dispatchTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));
+    // Centroid = [0,0], span = 20, angle = 0.
+    target.dispatchTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_DOWN, 1, -10, 0, 10, 0));
+    // Centroid = [0,0], * span = 40, angle = 0.
+    target.dispatchTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_MOVE, 1, -20, 0, 20, 0));
+    // Centroid = [0,0], span = 40, * angle = 90.
+    target.dispatchTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_MOVE, 1, 0, -20, 0, 20));
+    // * Centroid = [10,10], span = 40, angle = 90.
+    target.dispatchTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_MOVE, 1, 10, -10, 10, 30));
+    target.dispatchTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_UP, 1, 10, -10, 10, 30));
+    target.dispatchTouchEvent(createMotionEvent(MotionEvent.ACTION_UP, 10, -10));
+
+    assertThat(target.getScaleX()).isWithin(E).of(2f);
+    assertThat(target.getScaleY()).isWithin(E).of(2f);
+
+    assertThat(target.getRotation()).isWithin(E).of(90);
+
+    assertThat(target.getTranslationX()).isWithin(E).of(10f);
+    assertThat(target.getTranslationY()).isWithin(E).of(10f);
   }
 
   private MotionEvent createMotionEvent(int action, float x, float y) {
