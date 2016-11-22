@@ -29,7 +29,7 @@ import com.google.android.material.motion.runtime.PlanFeatures.BasePlan;
 import com.google.android.material.motion.runtime.PlanFeatures.NamedPlan;
 
 /**
- * A performer that uses a {@link DragGestureRecognizer} to translate a {@link View} target.
+ * A performer that uses {@link GestureRecognizer}s to drag, scale, and rotate a view.
  */
 public class GesturePerformer extends Performer
   implements ContinuousPerforming, NamedPlanPerforming {

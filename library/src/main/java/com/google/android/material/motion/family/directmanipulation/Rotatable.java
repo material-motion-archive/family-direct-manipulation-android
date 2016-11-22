@@ -21,7 +21,7 @@ import android.view.View.OnTouchListener;
 import com.google.android.material.motion.runtime.Performer;
 
 /**
- * Make the target rotatable. The target {@link View} is rotated by the rotation of a
+ * Makes the target rotatable. The target {@link View} is rotated by the rotation of a
  * {@link ScaleGestureRecognizer}.
  * <p>
  * Note that this will overwrite the {@link Performer#target target}'s {@link OnTouchListener}.
