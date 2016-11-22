@@ -80,19 +80,15 @@ public class GesturePerformer extends Performer
   @Override
   public void removePlan(String name) {
     Class<? extends GestureRecognizer> klass;
-    switch (name) {
-      case "draggable":
-        klass = DragGestureRecognizer.class;
-        break;
-      case "pinchable":
-        klass = ScaleGestureRecognizer.class;
-        break;
-      case "rotatable":
-        klass = RotateGestureRecognizer.class;
-        break;
-      default:
-        throw new IllegalArgumentException(
-          "Only \"draggable\", \"pinchable\", or \"rotatable\" names may be used.");
+    if (name.equals("draggable")) {
+      klass = DragGestureRecognizer.class;
+    } else if (name.equals("pinchable")) {
+      klass = ScaleGestureRecognizer.class;
+    } else if (name.equals("rotatable")) {
+      klass = RotateGestureRecognizer.class;
+    } else {
+      throw new IllegalArgumentException(
+        "Only \"draggable\", \"pinchable\", or \"rotatable\" names may be used.");
     }
 
     GestureRecognizer gestureRecognizer = gestureRecognizers.remove(klass);

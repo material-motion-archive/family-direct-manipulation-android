@@ -22,6 +22,7 @@ import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.v4.view.MotionEventCompat;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewConfiguration;
@@ -93,8 +94,7 @@ public abstract class GestureRecognizer {
 
   }
 
-  protected static final int PIXELS_PER_SECOND = 1000;
-  protected static final int DEFAULT_SLOP = -1;
+  protected static final int UNSET_SLOP = -1;
 
   /* Temporary variables. */
   private final Matrix matrix = new Matrix();
@@ -106,8 +106,6 @@ public abstract class GestureRecognizer {
    * Use this to convert untransformed points back to the element's local coordinate system.
    */
   private final Matrix inverse = new Matrix();
-
-  protected float maximumFlingVelocity;
 
   private final List<GestureStateChangeListener> listeners = new CopyOnWriteArrayList<>();
   @Nullable
@@ -121,11 +119,6 @@ public abstract class GestureRecognizer {
    */
   public void setElement(@Nullable View element) {
     this.element = element;
-
-    if (element != null) {
-      Context context = element.getContext();
-      this.maximumFlingVelocity = ViewConfiguration.get(context).getScaledMaximumFlingVelocity();
-    }
   }
 
   /**

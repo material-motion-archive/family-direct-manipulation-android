@@ -22,6 +22,8 @@ import android.support.v4.view.MotionEventCompat;
 import android.view.MotionEvent;
 import android.view.View;
 
+import static com.google.android.material.motion.gestures.ValueVelocityTracker.ADDITIVE;
+
 /**
  * A gesture recognizer that generates scale events.
  */
@@ -30,7 +32,7 @@ public class RotateGestureRecognizer extends GestureRecognizer {
   /**
    * Touch slop for rotate. Amount of radians that the angle needs to change.
    */
-  public float rotateSlop = DEFAULT_SLOP;
+  public float rotateSlop = UNSET_SLOP;
 
   private float currentCentroidX;
   private float currentCentroidY;
@@ -38,13 +40,21 @@ public class RotateGestureRecognizer extends GestureRecognizer {
   private float initialAngle;
   private float currentAngle;
 
+  private ValueVelocityTracker angleVelocityTracker;
+
   @Override
   public void setElement(@Nullable View element) {
     super.setElement(element);
 
-    if (rotateSlop == DEFAULT_SLOP) {
+    if (element == null) {
+      return;
+    }
+
+    if (rotateSlop == UNSET_SLOP) {
       this.rotateSlop = (float) (Math.PI / 180);
     }
+
+    angleVelocityTracker = new ValueVelocityTracker(element.getContext(), ADDITIVE);
   }
 
   public boolean onTouchEvent(MotionEvent event) {
@@ -55,13 +65,14 @@ public class RotateGestureRecognizer extends GestureRecognizer {
 
     int action = MotionEventCompat.getActionMasked(event);
     int pointerCount = event.getPointerCount();
-    if (action == MotionEvent.ACTION_DOWN
-      || action == MotionEvent.ACTION_POINTER_DOWN && pointerCount == 2) {
+    if (action == MotionEvent.ACTION_POINTER_DOWN && pointerCount == 2) {
       currentCentroidX = centroidX;
       currentCentroidY = centroidY;
 
       initialAngle = angle;
       currentAngle = angle;
+
+      angleVelocityTracker.onGestureStart(event, angle);
     }
     if (action == MotionEvent.ACTION_POINTER_DOWN && pointerCount > 2
       || action == MotionEvent.ACTION_POINTER_UP && pointerCount > 2) {
@@ -75,8 +86,10 @@ public class RotateGestureRecognizer extends GestureRecognizer {
 
       initialAngle += adjustAngle;
       currentAngle += adjustAngle;
+
+      angleVelocityTracker.onGestureAdjust(-adjustAngle);
     }
-    if (action == MotionEvent.ACTION_MOVE) {
+    if (action == MotionEvent.ACTION_MOVE && pointerCount >= 2) {
       currentCentroidX = centroidX;
       currentCentroidY = centroidY;
 
@@ -97,14 +110,18 @@ public class RotateGestureRecognizer extends GestureRecognizer {
 
         setState(CHANGED);
       }
+
+      angleVelocityTracker.onGestureMove(event, angle);
     }
     if (action == MotionEvent.ACTION_POINTER_UP && pointerCount == 2
-      || action == MotionEvent.ACTION_CANCEL) {
+      || action == MotionEvent.ACTION_CANCEL && pointerCount >= 2) {
       currentCentroidX = centroidX;
       currentCentroidY = centroidY;
 
       initialAngle = 0;
       currentAngle = 0;
+
+      angleVelocityTracker.onGestureEnd(event, angle);
 
       if (isInProgress()) {
         if (action == MotionEvent.ACTION_POINTER_UP) {
@@ -126,6 +143,17 @@ public class RotateGestureRecognizer extends GestureRecognizer {
    */
   public float getRotation() {
     return currentAngle - initialAngle;
+  }
+
+  /**
+   * Returns the angular velocity of the angle gesture.
+   * <p>
+   * Only read this when the state is {@link #RECOGNIZED} or {@link #CANCELLED}.
+   *
+   * @return The velocity in radians per second.
+   */
+  public float getVelocity() {
+    return angleVelocityTracker.getCurrentVelocity();
   }
 
   @Override

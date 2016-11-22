@@ -20,9 +20,10 @@ import android.graphics.PointF;
 import android.support.annotation.Nullable;
 import android.support.v4.view.MotionEventCompat;
 import android.view.MotionEvent;
-import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
+
+import static com.google.android.material.motion.gestures.ValueVelocityTracker.ADDITIVE;
 
 /**
  * A gesture recognizer that generates translation events.
@@ -32,35 +33,34 @@ public class DragGestureRecognizer extends GestureRecognizer {
   /**
    * Touch slop for drag. Amount of pixels that the centroid needs to move in either axes.
    */
-  public int dragSlop = DEFAULT_SLOP;
-
-  private VelocityTracker velocityTracker;
+  public int dragSlop = UNSET_SLOP;
 
   private float initialCentroidX;
   private float initialCentroidY;
   private float currentCentroidX;
   private float currentCentroidY;
-  private float currentVelocityX;
-  private float currentVelocityY;
+
+  private ValueVelocityTracker centroidXVelocityTracker;
+  private ValueVelocityTracker centroidYVelocityTracker;
 
   @Override
   public void setElement(@Nullable View element) {
     super.setElement(element);
 
-    if (dragSlop == DEFAULT_SLOP) {
+    if (element == null) {
+      return;
+    }
+
+    if (dragSlop == UNSET_SLOP) {
       Context context = element.getContext();
       this.dragSlop = ViewConfiguration.get(context).getScaledTouchSlop();
     }
+
+    centroidXVelocityTracker = new ValueVelocityTracker(element.getContext(), ADDITIVE);
+    centroidYVelocityTracker = new ValueVelocityTracker(element.getContext(), ADDITIVE);
   }
 
   public boolean onTouchEvent(MotionEvent event) {
-    MotionEvent copy = MotionEvent.obtain(event);
-    copy.setLocation(event.getRawX(), event.getRawY());
-    if (velocityTracker == null) {
-      velocityTracker = VelocityTracker.obtain();
-    }
-    velocityTracker.addMovement(copy);
-
     PointF centroid = calculateUntransformedCentroid(event);
     float centroidX = centroid.x;
     float centroidY = centroid.y;
@@ -71,8 +71,9 @@ public class DragGestureRecognizer extends GestureRecognizer {
       initialCentroidY = centroidY;
       currentCentroidX = centroidX;
       currentCentroidY = centroidY;
-      currentVelocityX = 0f;
-      currentVelocityY = 0f;
+
+      centroidXVelocityTracker.onGestureStart(event, centroidX);
+      centroidYVelocityTracker.onGestureStart(event, centroidY);
     }
     if (action == MotionEvent.ACTION_POINTER_DOWN
       || action == MotionEvent.ACTION_POINTER_UP) {
@@ -83,6 +84,9 @@ public class DragGestureRecognizer extends GestureRecognizer {
       initialCentroidY += adjustY;
       currentCentroidX += adjustX;
       currentCentroidY += adjustY;
+
+      centroidXVelocityTracker.onGestureAdjust(-adjustX);
+      centroidYVelocityTracker.onGestureAdjust(-adjustY);
     }
     if (action == MotionEvent.ACTION_MOVE) {
       if (!isInProgress()) {
@@ -107,6 +111,9 @@ public class DragGestureRecognizer extends GestureRecognizer {
 
         setState(CHANGED);
       }
+
+      centroidXVelocityTracker.onGestureMove(event, centroidX);
+      centroidYVelocityTracker.onGestureMove(event, centroidY);
     }
     if (action == MotionEvent.ACTION_UP
       || action == MotionEvent.ACTION_CANCEL) {
@@ -115,20 +122,16 @@ public class DragGestureRecognizer extends GestureRecognizer {
       currentCentroidX = centroidX;
       currentCentroidY = centroidY;
 
-      if (isInProgress()) {
-        velocityTracker.computeCurrentVelocity(PIXELS_PER_SECOND, maximumFlingVelocity);
-        currentVelocityX = velocityTracker.getXVelocity();
-        currentVelocityY = velocityTracker.getYVelocity();
+      centroidXVelocityTracker.onGestureEnd(event, centroidX);
+      centroidYVelocityTracker.onGestureEnd(event, centroidY);
 
+      if (isInProgress()) {
         if (action == MotionEvent.ACTION_UP) {
           setState(RECOGNIZED);
         } else {
           setState(CANCELLED);
         }
       }
-
-      velocityTracker.recycle();
-      velocityTracker = null;
     }
 
     return true;
@@ -155,25 +158,25 @@ public class DragGestureRecognizer extends GestureRecognizer {
   }
 
   /**
-   * Returns the velocityX of the drag gesture.
+   * Returns the positional velocityX of the drag gesture.
    * <p>
    * Only read this when the state is {@link #RECOGNIZED} or {@link #CANCELLED}.
    *
-   * @return The velocityX in pixels per second.
+   * @return The velocity in pixels per second.
    */
   public float getVelocityX() {
-    return currentVelocityX;
+    return centroidXVelocityTracker.getCurrentVelocity();
   }
 
   /**
-   * Returns the velocityY of the drag gesture.
+   * Returns the positional velocityY of the drag gesture.
    * <p>
    * Only read this when the state is {@link #RECOGNIZED} or {@link #CANCELLED}.
    *
-   * @return The velocityY in pixels per second.
+   * @return The velocity in pixels per second.
    */
   public float getVelocityY() {
-    return currentVelocityY;
+    return centroidYVelocityTracker.getCurrentVelocity();
   }
 
   @Override

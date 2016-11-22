@@ -58,7 +58,7 @@ public class GesturePerformerTests {
     target.layout(0, 0, 50, 75);
 
     eventDownTime = 0;
-    eventTime = 0;
+    eventTime = -16;
   }
 
   @Test
@@ -218,12 +218,15 @@ public class GesturePerformerTests {
   }
 
   private MotionEvent createMotionEvent(int action, float x, float y) {
-    return MotionEvent.obtain(eventDownTime, eventTime++, action, x, y, 0);
+    return MotionEvent.obtain(eventDownTime, eventTime += 16, action, x, y, 0);
   }
 
   private MotionEvent createMultiTouchMotionEvent(
     int action, int index, float x0, float y0, float x1, float y1) {
     MotionEvent event = mock(MotionEvent.class);
+
+    when(event.getDownTime()).thenReturn(eventDownTime);
+    when(event.getEventTime()).thenReturn(eventTime += 16);
 
     when(event.getPointerCount()).thenReturn(2);
     when(event.getAction()).thenReturn(action | (index << MotionEvent.ACTION_POINTER_INDEX_SHIFT));

@@ -24,6 +24,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 
+import static com.google.android.material.motion.gestures.ValueVelocityTracker.MULTIPLICATIVE;
+
 /**
  * A gesture recognizer that generates scale events.
  */
@@ -32,7 +34,7 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
   /**
    * Touch slop for scale. Amount of pixels that the span needs to change.
    */
-  public int scaleSlop = DEFAULT_SLOP;
+  public int scaleSlop = UNSET_SLOP;
 
   private float currentCentroidX;
   private float currentCentroidY;
@@ -40,14 +42,22 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
   private float initialSpan;
   private float currentSpan;
 
+  private ValueVelocityTracker spanVelocityTracker;
+
   @Override
   public void setElement(@Nullable View element) {
     super.setElement(element);
 
-    if (scaleSlop == DEFAULT_SLOP) {
+    if (element == null) {
+      return;
+    }
+
+    if (scaleSlop == UNSET_SLOP) {
       Context context = element.getContext();
       this.scaleSlop = ViewConfiguration.get(context).getScaledTouchSlop();
     }
+
+    spanVelocityTracker = new ValueVelocityTracker(element.getContext(), MULTIPLICATIVE);
   }
 
   public boolean onTouchEvent(MotionEvent event) {
@@ -58,13 +68,14 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
 
     int action = MotionEventCompat.getActionMasked(event);
     int pointerCount = event.getPointerCount();
-    if (action == MotionEvent.ACTION_DOWN
-      || action == MotionEvent.ACTION_POINTER_DOWN && pointerCount == 2) {
+    if (action == MotionEvent.ACTION_POINTER_DOWN && pointerCount == 2) {
       currentCentroidX = centroidX;
       currentCentroidY = centroidY;
 
       initialSpan = span;
       currentSpan = span;
+
+      spanVelocityTracker.onGestureStart(event, span);
     }
     if (action == MotionEvent.ACTION_POINTER_DOWN && pointerCount > 2
       || action == MotionEvent.ACTION_POINTER_UP && pointerCount > 2) {
@@ -78,8 +89,10 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
 
       initialSpan *= adjustSpan;
       currentSpan *= adjustSpan;
+
+      spanVelocityTracker.onGestureAdjust(1 / adjustSpan);
     }
-    if (action == MotionEvent.ACTION_MOVE) {
+    if (action == MotionEvent.ACTION_MOVE && pointerCount >= 2) {
       currentCentroidX = centroidX;
       currentCentroidY = centroidY;
 
@@ -100,14 +113,18 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
 
         setState(CHANGED);
       }
+
+      spanVelocityTracker.onGestureMove(event, span);
     }
     if (action == MotionEvent.ACTION_POINTER_UP && pointerCount == 2
-      || action == MotionEvent.ACTION_CANCEL) {
+      || action == MotionEvent.ACTION_CANCEL && pointerCount >= 2) {
       currentCentroidX = centroidX;
       currentCentroidY = centroidY;
 
       initialSpan = 0;
       currentSpan = 0;
+
+      spanVelocityTracker.onGestureEnd(event, span);
 
       if (isInProgress()) {
         if (action == MotionEvent.ACTION_POINTER_UP) {
@@ -129,6 +146,17 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
    */
   public float getScale() {
     return initialSpan > 0 ? currentSpan / initialSpan : 1;
+  }
+
+  /**
+   * Returns the scalar velocity of the scale gesture.
+   * <p>
+   * Only read this when the state is {@link #RECOGNIZED} or {@link #CANCELLED}.
+   *
+   * @return The velocity in pixels per second.
+   */
+  public float getVelocity() {
+    return spanVelocityTracker.getCurrentVelocity();
   }
 
   @Override

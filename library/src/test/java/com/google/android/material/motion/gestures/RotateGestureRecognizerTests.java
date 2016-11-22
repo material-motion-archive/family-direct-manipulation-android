@@ -60,7 +60,7 @@ public class RotateGestureRecognizerTests {
     rotateGestureRecognizer.rotateSlop = 0;
 
     eventDownTime = 0;
-    eventTime = 0;
+    eventTime = -16;
   }
 
   @Test
@@ -70,6 +70,7 @@ public class RotateGestureRecognizerTests {
     assertThat(rotateGestureRecognizer.getUntransformedCentroidX()).isWithin(0).of(0f);
     assertThat(rotateGestureRecognizer.getUntransformedCentroidY()).isWithin(0).of(0f);
     assertThat(rotateGestureRecognizer.getRotation()).isWithin(0).of(0f);
+    assertThat(rotateGestureRecognizer.getVelocity()).isWithin(0).of(0f);
   }
 
   @Test
@@ -87,7 +88,7 @@ public class RotateGestureRecognizerTests {
     assertThat(listener.states.toArray()).isEqualTo(new Integer[]{POSSIBLE});
 
     // Second finger down.
-    rotateGestureRecognizer.onTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_DOWN, 1, 0, 0, 100, 0));
+    rotateGestureRecognizer.onTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_DOWN, 1, 0, 0, 100, 0));
     assertThat(rotateGestureRecognizer.getState()).isEqualTo(POSSIBLE);
     assertThat(listener.states.toArray()).isEqualTo(new Integer[]{POSSIBLE});
 
@@ -112,7 +113,7 @@ public class RotateGestureRecognizerTests {
     assertThat(listener.states.toArray()).isEqualTo(new Integer[]{POSSIBLE});
 
     // Second finger down.
-    rotateGestureRecognizer.onTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_DOWN, 1, 0, 0, 100, 0));
+    rotateGestureRecognizer.onTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_DOWN, 1, 0, 0, 100, 0));
     assertThat(rotateGestureRecognizer.getState()).isEqualTo(POSSIBLE);
     assertThat(listener.states.toArray()).isEqualTo(new Integer[]{POSSIBLE});
 
@@ -142,7 +143,7 @@ public class RotateGestureRecognizerTests {
     assertThat(listener.states.toArray()).isEqualTo(new Integer[]{POSSIBLE});
 
     // Second finger down.
-    rotateGestureRecognizer.onTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_DOWN, 1, 0, 0, 100, 0));
+    rotateGestureRecognizer.onTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_DOWN, 1, 0, 0, 100, 0));
     assertThat(rotateGestureRecognizer.getState()).isEqualTo(POSSIBLE);
     assertThat(listener.states.toArray()).isEqualTo(new Integer[]{POSSIBLE});
 
@@ -181,7 +182,7 @@ public class RotateGestureRecognizerTests {
     rotateGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));
     rotateGestureRecognizer.onTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_DOWN, 1, 0, 0, 100, 100));
     rotateGestureRecognizer.onTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_MOVE, 1, 0, 0, 200, 100));
-    rotateGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_CANCEL, 0, 0));
+    rotateGestureRecognizer.onTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_CANCEL, 0, 0, 0, 200, 100));
 
     assertThat(rotateGestureRecognizer.getState()).isEqualTo(POSSIBLE);
     assertThat(listener.states.toArray())
@@ -331,13 +332,31 @@ public class RotateGestureRecognizerTests {
     assertThat(rotateGestureRecognizer.getRotation()).isWithin(E).of((float) (Math.PI / 4));
   }
 
+  @Test
+  public void nonZeroVelocity() {
+    rotateGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));
+    rotateGestureRecognizer.onTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_DOWN, 1, 0, 0, 10, 0));
+
+    float move = 0;
+    rotateGestureRecognizer.onTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_MOVE, 1, 0, 0, 10, 0 + (move += 10)));
+    rotateGestureRecognizer.onTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_MOVE, 1, 0, 0, 10, 0 + (move += 10)));
+
+    rotateGestureRecognizer.onTouchEvent(createMultiTouchMotionEvent(MotionEvent.ACTION_POINTER_UP, 1, 0, 0, 10 + move, 0));
+    rotateGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_UP, 0, 0));
+
+    assertThat(rotateGestureRecognizer.getVelocity()).isGreaterThan(0f);
+  }
+
   private MotionEvent createMotionEvent(int action, float x, float y) {
-    return MotionEvent.obtain(eventDownTime, eventTime++, action, x, y, 0);
+    return MotionEvent.obtain(eventDownTime, eventTime += 16, action, x, y, 0);
   }
 
   private MotionEvent createMultiTouchMotionEvent(
     int action, int index, float x0, float y0, float x1, float y1) {
     MotionEvent event = mock(MotionEvent.class);
+
+    when(event.getDownTime()).thenReturn(eventDownTime);
+    when(event.getEventTime()).thenReturn(eventTime += 16);
 
     when(event.getPointerCount()).thenReturn(2);
     when(event.getAction()).thenReturn(action | (index << MotionEvent.ACTION_POINTER_INDEX_SHIFT));
@@ -359,6 +378,9 @@ public class RotateGestureRecognizerTests {
   private MotionEvent createMultiTouchMotionEvent(
     int action, int index, float x0, float y0, float x1, float y1, float x2, float y2) {
     MotionEvent event = mock(MotionEvent.class);
+
+    when(event.getDownTime()).thenReturn(eventDownTime);
+    when(event.getEventTime()).thenReturn(eventTime += 16);
 
     when(event.getPointerCount()).thenReturn(3);
     when(event.getAction()).thenReturn(action | (index << MotionEvent.ACTION_POINTER_INDEX_SHIFT));
