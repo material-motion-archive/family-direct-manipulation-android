@@ -21,7 +21,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 
-import com.google.android.material.motion.family.directmanipulation.GestureRecognizer.GestureStateChangeListener;
+import com.google.android.material.motion.gestures.DragGestureRecognizer;
+import com.google.android.material.motion.gestures.GestureRecognizer;
+import com.google.android.material.motion.gestures.GestureRecognizer.GestureStateChangeListener;
+import com.google.android.material.motion.gestures.RotateGestureRecognizer;
+import com.google.android.material.motion.gestures.ScaleGestureRecognizer;
 import com.google.android.material.motion.runtime.Performer;
 import com.google.android.material.motion.runtime.PerformerFeatures.ContinuousPerforming;
 import com.google.android.material.motion.runtime.PerformerFeatures.NamedPlanPerforming;

@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.material.motion.family.directmanipulation;
+package com.google.android.material.motion.gestures;
 
-import com.google.android.material.motion.family.directmanipulation.GestureRecognizer.GestureStateChangeListener;
+import com.google.android.material.motion.gestures.GestureRecognizer.GestureStateChangeListener;
 import com.google.common.collect.Lists;
 
 import java.util.List;
 
-import static com.google.android.material.motion.family.directmanipulation.GestureRecognizer.POSSIBLE;
+import static com.google.android.material.motion.gestures.GestureRecognizer.POSSIBLE;
 
 /**
  * A GestureStateChangeListener that tracks the state changes. Useful for tests.

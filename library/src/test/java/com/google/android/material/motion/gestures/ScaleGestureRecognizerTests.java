@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.material.motion.family.directmanipulation;
+package com.google.android.material.motion.gestures;
 
 import android.app.Activity;
 import android.content.Context;
 import android.view.MotionEvent;
 import android.view.View;
+
+import com.google.android.material.motion.family.directmanipulation.BuildConfig;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -27,12 +29,12 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-import static com.google.android.material.motion.family.directmanipulation.GestureRecognizer.BEGAN;
-import static com.google.android.material.motion.family.directmanipulation.GestureRecognizer.CANCELLED;
-import static com.google.android.material.motion.family.directmanipulation.GestureRecognizer.CHANGED;
-import static com.google.android.material.motion.family.directmanipulation.GestureRecognizer.POSSIBLE;
-import static com.google.android.material.motion.family.directmanipulation.GestureRecognizer.RECOGNIZED;
-import static com.google.android.material.motion.family.directmanipulation.ScaleGestureRecognizer.dist;
+import static com.google.android.material.motion.gestures.GestureRecognizer.BEGAN;
+import static com.google.android.material.motion.gestures.GestureRecognizer.CANCELLED;
+import static com.google.android.material.motion.gestures.GestureRecognizer.CHANGED;
+import static com.google.android.material.motion.gestures.GestureRecognizer.POSSIBLE;
+import static com.google.android.material.motion.gestures.GestureRecognizer.RECOGNIZED;
+import static com.google.android.material.motion.gestures.ScaleGestureRecognizer.dist;
 import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

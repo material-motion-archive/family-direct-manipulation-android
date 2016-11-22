@@ -20,6 +20,9 @@ import android.content.Context;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.google.android.material.motion.gestures.DragGestureRecognizer;
+import com.google.android.material.motion.gestures.RotateGestureRecognizer;
+import com.google.android.material.motion.gestures.ScaleGestureRecognizer;
 import com.google.android.material.motion.runtime.Performer;
 import com.google.android.material.motion.runtime.PerformerFeatures;
 import com.google.android.material.motion.runtime.Plan;

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.material.motion.family.directmanipulation;
+package com.google.android.material.motion.gestures;
 
 import android.content.Context;
 import android.graphics.PointF;
@@ -32,8 +32,7 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
   /**
    * Touch slop for scale. Amount of pixels that the span needs to change.
    */
-  @VisibleForTesting
-  int scaleSlop = DEFAULT_SLOP;
+  public int scaleSlop = DEFAULT_SLOP;
 
   private float currentCentroidX;
   private float currentCentroidY;

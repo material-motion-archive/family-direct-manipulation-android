@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.material.motion.family.directmanipulation;
+package com.google.android.material.motion.gestures;
 
-import android.content.Context;
 import android.graphics.PointF;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
@@ -31,8 +30,7 @@ public class RotateGestureRecognizer extends GestureRecognizer {
   /**
    * Touch slop for rotate. Amount of radians that the angle needs to change.
    */
-  @VisibleForTesting
-  float rotateSlop = DEFAULT_SLOP;
+  public float rotateSlop = DEFAULT_SLOP;
 
   private float currentCentroidX;
   private float currentCentroidY;

@@ -15,6 +15,7 @@
  */
 package com.google.android.material.motion.family.directmanipulation;
 
+import com.google.android.material.motion.gestures.GestureRecognizer;
 import com.google.android.material.motion.runtime.PerformerFeatures.NamedPlanPerforming;
 import com.google.android.material.motion.runtime.Plan;
 import com.google.android.material.motion.runtime.PlanFeatures.NamedPlan;

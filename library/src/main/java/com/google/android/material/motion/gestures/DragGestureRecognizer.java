@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.material.motion.family.directmanipulation;
+package com.google.android.material.motion.gestures;
 
 import android.content.Context;
 import android.graphics.PointF;
 import android.support.annotation.Nullable;
-import android.support.annotation.VisibleForTesting;
 import android.support.v4.view.MotionEventCompat;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -33,8 +32,7 @@ public class DragGestureRecognizer extends GestureRecognizer {
   /**
    * Touch slop for drag. Amount of pixels that the centroid needs to move in either axes.
    */
-  @VisibleForTesting
-  int dragSlop = DEFAULT_SLOP;
+  public int dragSlop = DEFAULT_SLOP;
 
   private VelocityTracker velocityTracker;
 

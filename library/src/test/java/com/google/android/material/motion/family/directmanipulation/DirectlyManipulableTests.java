@@ -19,6 +19,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.view.View;
 
+import com.google.android.material.motion.gestures.DragGestureRecognizer;
+import com.google.android.material.motion.gestures.RotateGestureRecognizer;
+import com.google.android.material.motion.gestures.ScaleGestureRecognizer;
 import com.google.android.material.motion.runtime.Runtime;
 
 import org.junit.Before;

@@ -19,6 +19,9 @@ import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.view.View;
 
+import com.google.android.material.motion.gestures.DragGestureRecognizer;
+import com.google.android.material.motion.gestures.RotateGestureRecognizer;
+import com.google.android.material.motion.gestures.ScaleGestureRecognizer;
 import com.google.android.material.motion.runtime.Performer;
 import com.google.android.material.motion.runtime.PerformerFeatures.BasePerforming;
 import com.google.android.material.motion.runtime.PerformerFeatures.ComposablePerforming;

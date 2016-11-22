@@ -18,6 +18,7 @@ package com.google.android.material.motion.family.directmanipulation;
 import android.view.View;
 import android.view.View.OnTouchListener;
 
+import com.google.android.material.motion.gestures.DragGestureRecognizer;
 import com.google.android.material.motion.runtime.Performer;
 
 /**
