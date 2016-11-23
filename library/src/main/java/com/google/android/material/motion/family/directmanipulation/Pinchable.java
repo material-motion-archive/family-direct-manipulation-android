@@ -15,23 +15,25 @@
  */
 package com.google.android.material.motion.family.directmanipulation;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
+import android.view.View;
+import android.view.View.OnTouchListener;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, sdk = 21)
-public class UnitTests {
+import com.google.android.material.motion.gestures.ScaleGestureRecognizer;
+import com.google.android.material.motion.runtime.Performer;
 
-  @Before
-  public void setUp() {
+/**
+ * Makes the target pinchable. The target {@link View} is scaled by the span of a
+ * {@link ScaleGestureRecognizer}.
+ * <p>
+ * Note that this will overwrite the {@link Performer#target target}'s {@link OnTouchListener}.
+ */
+public class Pinchable extends GesturePlan {
 
+  public Pinchable() {
+    this(new ScaleGestureRecognizer());
   }
 
-  @Test
-  public void unitTest() {
-
+  public Pinchable(ScaleGestureRecognizer gestureRecognizer) {
+    super(gestureRecognizer);
   }
 }

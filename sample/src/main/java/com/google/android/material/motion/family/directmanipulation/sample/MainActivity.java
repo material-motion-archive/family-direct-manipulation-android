@@ -15,16 +15,27 @@
  */
 package com.google.android.material.motion.family.directmanipulation.sample;
 
-import com.google.android.material.motion.family.directmanipulation.Library;
-
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.TextView;
+import android.view.View;
+import android.widget.Button;
+
+import com.google.android.libraries.remixer.annotation.BooleanVariableMethod;
+import com.google.android.libraries.remixer.annotation.RemixerBinder;
+import com.google.android.libraries.remixer.ui.gesture.Direction;
+import com.google.android.libraries.remixer.ui.view.RemixerFragment;
+import com.google.android.material.motion.family.directmanipulation.Draggable;
+import com.google.android.material.motion.family.directmanipulation.Pinchable;
+import com.google.android.material.motion.family.directmanipulation.Rotatable;
+import com.google.android.material.motion.runtime.Runtime;
 
 /**
- * Material Motion Family Direct Manipulation Android sample Activity.
+ * Material Motion Direct Manipulation Family sample Activity.
  */
 public class MainActivity extends AppCompatActivity {
+
+  private final Runtime runtime = new Runtime();
+  private View target;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -32,7 +43,39 @@ public class MainActivity extends AppCompatActivity {
 
     setContentView(R.layout.main_activity);
 
-    TextView text = (TextView) findViewById(R.id.text);
-    text.setText(Library.LIBRARY_NAME);
+    target = findViewById(R.id.target);
+    target.setBackgroundDrawable(new CheckerboardDrawable());
+
+    RemixerBinder.bind(this);
+    RemixerFragment remixerFragment = RemixerFragment.newInstance();
+    remixerFragment.attachToGesture(this, Direction.UP, 3);
+    remixerFragment.attachToButton(this, (Button) findViewById(R.id.remixer_button));
+  }
+
+  @BooleanVariableMethod(defaultValue = true, title = "Draggable")
+  public void setDraggable(Boolean draggable) {
+    if (draggable) {
+      runtime.addNamedPlan(new Draggable(), "draggable", target);
+    } else {
+      runtime.removeNamedPlan("draggable", target);
+    }
+  }
+
+  @BooleanVariableMethod(defaultValue = true, title = "Pinchable")
+  public void setPinchable(Boolean pinchable) {
+    if (pinchable) {
+      runtime.addNamedPlan(new Pinchable(), "pinchable", target);
+    } else {
+      runtime.removeNamedPlan("pinchable", target);
+    }
+  }
+
+  @BooleanVariableMethod(defaultValue = true, title = "Rotatable")
+  public void setRotatable(Boolean rotatable) {
+    if (rotatable) {
+      runtime.addNamedPlan(new Rotatable(), "rotatable", target);
+    } else {
+      runtime.removeNamedPlan("rotatable", target);
+    }
   }
 }
