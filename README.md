@@ -10,7 +10,7 @@ This library consists of the following plans:
 - `Draggable`, `Pinchable`, and `Rotatable`
 - `DirectlyManipulable`
 
-The `Draggable`, `Pinchable`, and `Rotatable` plans allow a user to move, scale, and rotate a view.
+The `Draggable`, `Pinchable`, and `Rotatable` plans allow a user to drag, scale, and rotate a view.
 They each listen for deltas emitted by a gesture recognizer and add them to the target.
 
 If a view can be dragged then it can sometimes be pinched and rotated too. To make this easy, we
@@ -110,19 +110,19 @@ To run all unit tests, run the following commands:
 ## How to make a view directly manipulable
 
 ```java
-runtime.addPlan(new DirectlyManipulable(), to: view);
+runtime.addPlan(new DirectlyManipulable(), view);
 ```
 
 ## How to make a view draggable
 
 ```java
-runtime.addPlan(new Draggable(), to: view);
+runtime.addPlan(new Draggable(), view);
 ```
 
 ## How to use an existing gesture recognizer to make a view draggable
 
 ```java
-runtime.addPlan(new Draggable(panGestureRecognizer), to: view);
+runtime.addPlan(new Draggable(dragGestureRecognizer), view);
 ```
 
 ## Contributing
