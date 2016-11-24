@@ -74,6 +74,10 @@ public class DragGestureRecognizer extends GestureRecognizer {
 
       centroidXVelocityTracker.onGestureStart(event, centroidX);
       centroidYVelocityTracker.onGestureStart(event, centroidY);
+
+      if (dragSlop == 0) {
+        setState(BEGAN);
+      }
     }
     if (action == MotionEvent.ACTION_POINTER_DOWN
       || action == MotionEvent.ACTION_POINTER_UP) {

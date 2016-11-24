@@ -191,6 +191,8 @@ public class ScaleGestureRecognizerTests {
 
   @Test
   public void noMovementIsNotRecognized() {
+    scaleGestureRecognizer.scaleSlop = 24;
+
     TrackingGestureStateChangeListener listener = new TrackingGestureStateChangeListener();
     scaleGestureRecognizer.addStateChangeListener(listener);
     scaleGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));

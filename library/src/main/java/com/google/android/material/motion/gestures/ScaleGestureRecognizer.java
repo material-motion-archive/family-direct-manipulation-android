@@ -76,6 +76,10 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
       currentSpan = span;
 
       spanVelocityTracker.onGestureStart(event, span);
+
+      if (scaleSlop == 0) {
+        setState(BEGAN);
+      }
     }
     if (action == MotionEvent.ACTION_POINTER_DOWN && pointerCount > 2
       || action == MotionEvent.ACTION_POINTER_UP && pointerCount > 2) {

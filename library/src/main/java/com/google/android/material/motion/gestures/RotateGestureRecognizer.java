@@ -73,6 +73,10 @@ public class RotateGestureRecognizer extends GestureRecognizer {
       currentAngle = angle;
 
       angleVelocityTracker.onGestureStart(event, angle);
+
+      if (rotateSlop == 0) {
+        setState(BEGAN);
+      }
     }
     if (action == MotionEvent.ACTION_POINTER_DOWN && pointerCount > 2
       || action == MotionEvent.ACTION_POINTER_UP && pointerCount > 2) {

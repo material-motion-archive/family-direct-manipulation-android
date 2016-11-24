@@ -191,6 +191,8 @@ public class RotateGestureRecognizerTests {
 
   @Test
   public void noMovementIsNotRecognized() {
+    rotateGestureRecognizer.rotateSlop = (float) (Math.PI / 4); // 45 degrees.
+
     TrackingGestureStateChangeListener listener = new TrackingGestureStateChangeListener();
     rotateGestureRecognizer.addStateChangeListener(listener);
     rotateGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));
