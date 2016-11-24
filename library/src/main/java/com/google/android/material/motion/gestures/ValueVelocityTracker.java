@@ -69,7 +69,8 @@ class ValueVelocityTracker {
   }
 
   /**
-   * Returns the velocity calculated in the most recent {@link #onGestureEnd(MotionEvent, float)}.
+   * Returns the velocity calculated in the most recent {@link #onGestureEnd(MotionEvent,
+   * float)}.
    */
   public float getCurrentVelocity() {
     return currentVelocity;
@@ -78,7 +79,8 @@ class ValueVelocityTracker {
   /**
    * Processes the start of a gesture.
    * <p>
-   * Must be balanced with a call to {@link #onGestureEnd(MotionEvent, float)} to end the gesture.
+   * Must be balanced with a call to {@link #onGestureEnd(MotionEvent, float)} to end the
+   * gesture.
    */
   public void onGestureStart(MotionEvent event, float value) {
     velocityTracker = VelocityTracker.obtain();

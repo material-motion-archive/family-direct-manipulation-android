@@ -140,8 +140,8 @@ public class DragGestureRecognizer extends GestureRecognizer {
   /**
    * Returns the translationX of the drag gesture.
    * <p>
-   * This reports the total translation over time since the {@link #BEGAN beginning} of the gesture.
-   * This is not a delta value from the last {@link #CHANGED update}.
+   * This reports the total translation over time since the {@link #BEGAN beginning} of the
+   * gesture. This is not a delta value from the last {@link #CHANGED update}.
    */
   public float getTranslationX() {
     return currentCentroidX - initialCentroidX;
@@ -150,8 +150,8 @@ public class DragGestureRecognizer extends GestureRecognizer {
   /**
    * Returns the translationY of the drag gesture.
    * <p>
-   * This reports the total translation over time since the {@link #BEGAN beginning} of the gesture.
-   * This is not a delta value from the last {@link #CHANGED update}.
+   * This reports the total translation over time since the {@link #BEGAN beginning} of the
+   * gesture. This is not a delta value from the last {@link #CHANGED update}.
    */
   public float getTranslationY() {
     return currentCentroidY - initialCentroidY;

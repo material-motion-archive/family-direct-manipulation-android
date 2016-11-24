@@ -23,8 +23,8 @@ import com.google.android.material.motion.gestures.ScaleGestureRecognizer;
 import com.google.android.material.motion.runtime.Performer;
 
 /**
- * Makes the target rotatable. The target {@link View} is rotated by the rotation of a
- * {@link ScaleGestureRecognizer}.
+ * Makes the target rotatable. The target {@link View} is rotated by the rotation of a {@link
+ * ScaleGestureRecognizer}.
  * <p>
  * Note that this will overwrite the {@link Performer#target target}'s {@link OnTouchListener}.
  */

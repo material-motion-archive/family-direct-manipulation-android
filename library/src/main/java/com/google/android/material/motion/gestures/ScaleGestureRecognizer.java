@@ -194,7 +194,8 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
   }
 
   /**
-   * Calculates the distance between the pointer given by the pointer index and the given centroid.
+   * Calculates the distance between the pointer given by the pointer index and the given
+   * centroid.
    */
   private float calculateDistance(
     MotionEvent event, int pointerIndex, float centroidX, float centroidY) {
