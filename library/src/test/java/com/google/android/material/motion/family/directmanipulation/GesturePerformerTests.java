@@ -26,7 +26,7 @@ import com.google.android.material.motion.gestures.ScaleGestureRecognizer;
 import com.google.android.material.motion.runtime.Performer;
 import com.google.android.material.motion.runtime.PerformerFeatures;
 import com.google.android.material.motion.runtime.Plan;
-import com.google.android.material.motion.runtime.Runtime;
+import com.google.android.material.motion.runtime.MotionRuntime;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
 public class GesturePerformerTests {
   private static final float E = 0.0001f;
 
-  private Runtime runtime;
+  private MotionRuntime runtime;
   private View target;
 
   private long eventDownTime;
@@ -52,7 +52,7 @@ public class GesturePerformerTests {
 
   @Before
   public void setUp() {
-    runtime = new Runtime();
+    runtime = new MotionRuntime();
     Context context = Robolectric.setupActivity(Activity.class);
     target = new View(context);
     target.layout(0, 0, 50, 75);

@@ -22,7 +22,7 @@ import android.view.View;
 import com.google.android.material.motion.gestures.DragGestureRecognizer;
 import com.google.android.material.motion.gestures.RotateGestureRecognizer;
 import com.google.android.material.motion.gestures.ScaleGestureRecognizer;
-import com.google.android.material.motion.runtime.Runtime;
+import com.google.android.material.motion.runtime.MotionRuntime;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -37,12 +37,12 @@ import static com.google.common.truth.Truth.assertThat;
 @Config(constants = BuildConfig.class, sdk = 21)
 public class DirectlyManipulableTests {
 
-  private Runtime runtime;
+  private MotionRuntime runtime;
   private View target;
 
   @Before
   public void setUp() {
-    runtime = new Runtime();
+    runtime = new MotionRuntime();
     Context context = Robolectric.setupActivity(Activity.class);
     target = new View(context);
   }

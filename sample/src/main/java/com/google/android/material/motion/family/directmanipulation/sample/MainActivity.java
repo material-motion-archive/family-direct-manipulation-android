@@ -27,14 +27,14 @@ import com.google.android.libraries.remixer.ui.view.RemixerFragment;
 import com.google.android.material.motion.family.directmanipulation.Draggable;
 import com.google.android.material.motion.family.directmanipulation.Pinchable;
 import com.google.android.material.motion.family.directmanipulation.Rotatable;
-import com.google.android.material.motion.runtime.Runtime;
+import com.google.android.material.motion.runtime.MotionRuntime;
 
 /**
  * Material Motion Direct Manipulation Family sample Activity.
  */
 public class MainActivity extends AppCompatActivity {
 
-  private final Runtime runtime = new Runtime();
+  private final MotionRuntime runtime = new MotionRuntime();
   private View target;
 
   @Override
