@@ -76,6 +76,10 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
       currentSpan = span;
 
       spanVelocityTracker.onGestureStart(event, span);
+
+      if (scaleSlop == 0) {
+        setState(BEGAN);
+      }
     }
     if (action == MotionEvent.ACTION_POINTER_DOWN && pointerCount > 2
       || action == MotionEvent.ACTION_POINTER_UP && pointerCount > 2) {
@@ -194,7 +198,8 @@ public class ScaleGestureRecognizer extends GestureRecognizer {
   }
 
   /**
-   * Calculates the distance between the pointer given by the pointer index and the given centroid.
+   * Calculates the distance between the pointer given by the pointer index and the given
+   * centroid.
    */
   private float calculateDistance(
     MotionEvent event, int pointerIndex, float centroidX, float centroidY) {

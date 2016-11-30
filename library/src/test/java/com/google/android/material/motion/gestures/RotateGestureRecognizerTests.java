@@ -176,7 +176,19 @@ public class RotateGestureRecognizerTests {
   }
 
   @Test
-  public void cancelledGestureIsNotRecognized() {
+  public void cancelledOneFingerGestureIsNotRecognized() {
+    TrackingGestureStateChangeListener listener = new TrackingGestureStateChangeListener();
+    rotateGestureRecognizer.addStateChangeListener(listener);
+    rotateGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));
+    rotateGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_MOVE, 100, 0));
+    rotateGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_CANCEL, 100, 0));
+
+    assertThat(rotateGestureRecognizer.getState()).isEqualTo(POSSIBLE);
+    assertThat(listener.states.toArray()).isEqualTo(new Integer[]{POSSIBLE});
+  }
+
+  @Test
+  public void cancelledTwoFingerGestureIsNotRecognized() {
     TrackingGestureStateChangeListener listener = new TrackingGestureStateChangeListener();
     rotateGestureRecognizer.addStateChangeListener(listener);
     rotateGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));
@@ -191,6 +203,8 @@ public class RotateGestureRecognizerTests {
 
   @Test
   public void noMovementIsNotRecognized() {
+    rotateGestureRecognizer.rotateSlop = (float) (Math.PI / 4); // 45 degrees.
+
     TrackingGestureStateChangeListener listener = new TrackingGestureStateChangeListener();
     rotateGestureRecognizer.addStateChangeListener(listener);
     rotateGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));

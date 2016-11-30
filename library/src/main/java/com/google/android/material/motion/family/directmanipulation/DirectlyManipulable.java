@@ -31,7 +31,8 @@ import com.google.android.material.motion.runtime.PlanFeatures.BasePlan;
 /**
  * Makes the target draggable, pinchable, and rotatable.
  * <p>
- * Note that this will overwrite the {@link Performer#target target}'s {@link View.OnTouchListener}.
+ * Note that this will overwrite the {@link Performer#target target}'s {@link
+ * View.OnTouchListener}.
  */
 public class DirectlyManipulable extends Plan {
 

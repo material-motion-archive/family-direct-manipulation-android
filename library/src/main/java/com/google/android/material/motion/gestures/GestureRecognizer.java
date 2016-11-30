@@ -15,17 +15,14 @@
  */
 package com.google.android.material.motion.gestures;
 
-import android.content.Context;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.support.annotation.IntDef;
 import android.support.annotation.Nullable;
 import android.support.v4.view.MotionEventCompat;
 import android.view.MotionEvent;
-import android.view.VelocityTracker;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.view.ViewConfiguration;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -60,8 +57,8 @@ public abstract class GestureRecognizer {
   }
 
   /**
-   * The gesture recognizer has not yet recognized its gesture, but may be evaluating touch events.
-   * This is the default state.
+   * The gesture recognizer has not yet recognized its gesture, but may be evaluating touch
+   * events. This is the default state.
    */
   public static final int POSSIBLE = 0;
   /**
@@ -73,15 +70,15 @@ public abstract class GestureRecognizer {
    */
   public static final int CHANGED = 2;
   /**
-   * The gesture recognizer has received touches recognized as the end of a continuous gesture.
-   * At the next cycle of the run loop, the gesture recognizer resets its state to
-   * {@link #POSSIBLE}.
+   * The gesture recognizer has received touches recognized as the end of a continuous gesture. At
+   * the next cycle of the run loop, the gesture recognizer resets its state to {@link
+   * #POSSIBLE}.
    */
   public static final int RECOGNIZED = 3;
   /**
    * The gesture recognizer has received touches resulting in the cancellation of a continuous
-   * gesture. At the next cycle of the run loop, the gesture recognizer resets its state to
-   * {@link #POSSIBLE}.
+   * gesture. At the next cycle of the run loop, the gesture recognizer resets its state to {@link
+   * #POSSIBLE}.
    */
   public static final int CANCELLED = 4;
 
@@ -102,8 +99,8 @@ public abstract class GestureRecognizer {
   private final PointF pointF = new PointF();
 
   /**
-   * Inverse transformation matrix that is updated on a untransformed point calculation.
-   * Use this to convert untransformed points back to the element's local coordinate system.
+   * Inverse transformation matrix that is updated on a untransformed point calculation. Use this
+   * to convert untransformed points back to the element's local coordinate system.
    */
   private final Matrix inverse = new Matrix();
 
@@ -282,10 +279,10 @@ public abstract class GestureRecognizer {
   }
 
   /**
-   * Calculates the transformation matrices that can convert from local to untransformed coordinate
-   * spaces.
+   * Calculates the transformation matrices that can convert from local to untransformed
+   * coordinate spaces.
    *
-   * @param matrix  This output matrix can convert from local to untransformed coordinate space.
+   * @param matrix This output matrix can convert from local to untransformed coordinate space.
    * @param inverse This output matrix can convert from untransformed to local coordinate space.
    */
   public static void getTransformationMatrix(View element, Matrix matrix, Matrix inverse) {

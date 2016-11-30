@@ -169,6 +169,8 @@ public class DragGestureRecognizerTests {
 
   @Test
   public void noMovementIsNotRecognized() {
+    dragGestureRecognizer.dragSlop = 24;
+
     TrackingGestureStateChangeListener listener = new TrackingGestureStateChangeListener();
     dragGestureRecognizer.addStateChangeListener(listener);
     dragGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));

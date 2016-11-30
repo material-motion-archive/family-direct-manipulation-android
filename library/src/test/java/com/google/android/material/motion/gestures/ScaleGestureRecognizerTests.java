@@ -176,7 +176,19 @@ public class ScaleGestureRecognizerTests {
   }
 
   @Test
-  public void cancelledGestureIsNotRecognized() {
+  public void cancelledOneFingerGestureIsNotRecognized() {
+    TrackingGestureStateChangeListener listener = new TrackingGestureStateChangeListener();
+    scaleGestureRecognizer.addStateChangeListener(listener);
+    scaleGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));
+    scaleGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_MOVE, 100, 0));
+    scaleGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_CANCEL, 100, 0));
+
+    assertThat(scaleGestureRecognizer.getState()).isEqualTo(POSSIBLE);
+    assertThat(listener.states.toArray()).isEqualTo(new Integer[]{POSSIBLE});
+  }
+
+  @Test
+  public void cancelledTwoFingerGestureIsNotRecognized() {
     TrackingGestureStateChangeListener listener = new TrackingGestureStateChangeListener();
     scaleGestureRecognizer.addStateChangeListener(listener);
     scaleGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));
@@ -191,6 +203,8 @@ public class ScaleGestureRecognizerTests {
 
   @Test
   public void noMovementIsNotRecognized() {
+    scaleGestureRecognizer.scaleSlop = 24;
+
     TrackingGestureStateChangeListener listener = new TrackingGestureStateChangeListener();
     scaleGestureRecognizer.addStateChangeListener(listener);
     scaleGestureRecognizer.onTouchEvent(createMotionEvent(MotionEvent.ACTION_DOWN, 0, 0));
