@@ -23,10 +23,8 @@ import com.google.android.material.motion.gestures.DragGestureRecognizer;
 import com.google.android.material.motion.gestures.RotateGestureRecognizer;
 import com.google.android.material.motion.gestures.ScaleGestureRecognizer;
 import com.google.android.material.motion.runtime.Performer;
-import com.google.android.material.motion.runtime.PerformerFeatures.BasePerforming;
 import com.google.android.material.motion.runtime.PerformerFeatures.ComposablePerforming;
 import com.google.android.material.motion.runtime.Plan;
-import com.google.android.material.motion.runtime.PlanFeatures.BasePlan;
 
 /**
  * Makes the target draggable, pinchable, and rotatable.
@@ -34,7 +32,7 @@ import com.google.android.material.motion.runtime.PlanFeatures.BasePlan;
  * Note that this will overwrite the {@link Performer#target target}'s {@link
  * View.OnTouchListener}.
  */
-public class DirectlyManipulable extends Plan {
+public class DirectlyManipulable extends Plan<View> {
 
   @VisibleForTesting
   final DragGestureRecognizer dragGestureRecognizer;
@@ -67,20 +65,20 @@ public class DirectlyManipulable extends Plan {
   }
 
   @Override
-  public Class<? extends BasePerforming> getPerformerClass() {
+  public Class<? extends Performer<View>> getPerformerClass() {
     return DirectlyManipulablePerformer.class;
   }
 
   /**
    * A performer that composes to {@link Draggable}, {@link Pinchable}, and {@link Rotatable}.
    */
-  public static class DirectlyManipulablePerformer extends Performer
-    implements ComposablePerforming {
+  public static class DirectlyManipulablePerformer extends Performer<View>
+    implements ComposablePerforming<View> {
 
-    private PlanEmitter planEmitter;
+    private PlanEmitter<View> planEmitter;
 
     @Override
-    public void addPlan(BasePlan plan) {
+    public void addPlan(Plan<View> plan) {
       DirectlyManipulable directlyManipulable = (DirectlyManipulable) plan;
       planEmitter.emit(new Draggable(directlyManipulable.dragGestureRecognizer));
       planEmitter.emit(new Pinchable(directlyManipulable.scaleGestureRecognizer));
@@ -88,7 +86,7 @@ public class DirectlyManipulable extends Plan {
     }
 
     @Override
-    public void setPlanEmitter(PlanEmitter planEmitter) {
+    public void setPlanEmitter(PlanEmitter<View> planEmitter) {
       this.planEmitter = planEmitter;
     }
   }

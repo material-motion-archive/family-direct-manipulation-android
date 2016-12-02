@@ -15,15 +15,16 @@
  */
 package com.google.android.material.motion.family.directmanipulation;
 
+import android.view.View;
+
 import com.google.android.material.motion.gestures.GestureRecognizer;
-import com.google.android.material.motion.runtime.PerformerFeatures.NamedPlanPerforming;
-import com.google.android.material.motion.runtime.Plan;
-import com.google.android.material.motion.runtime.PlanFeatures.NamedPlan;
+import com.google.android.material.motion.runtime.NamedPerformer;
+import com.google.android.material.motion.runtime.NamedPlan;
 
 /**
  * Base abstract class for all gesture plans.
  */
-public abstract class GesturePlan extends Plan implements NamedPlan {
+public abstract class GesturePlan extends NamedPlan<View> {
 
   final GestureRecognizer gestureRecognizer;
 
@@ -32,7 +33,7 @@ public abstract class GesturePlan extends Plan implements NamedPlan {
   }
 
   @Override
-  public Class<? extends NamedPlanPerforming> getPerformerClass() {
+  public Class<? extends NamedPerformer<View>> getPerformerClass() {
     return GesturePerformer.class;
   }
 }
