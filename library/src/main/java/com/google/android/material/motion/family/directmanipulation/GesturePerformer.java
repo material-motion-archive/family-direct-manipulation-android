@@ -26,17 +26,15 @@ import com.google.android.material.motion.gestures.GestureRecognizer;
 import com.google.android.material.motion.gestures.GestureRecognizer.GestureStateChangeListener;
 import com.google.android.material.motion.gestures.RotateGestureRecognizer;
 import com.google.android.material.motion.gestures.ScaleGestureRecognizer;
-import com.google.android.material.motion.runtime.Performer;
+import com.google.android.material.motion.runtime.NamedPerformer;
+import com.google.android.material.motion.runtime.NamedPlan;
 import com.google.android.material.motion.runtime.PerformerFeatures.ContinuousPerforming;
-import com.google.android.material.motion.runtime.PerformerFeatures.NamedPlanPerforming;
-import com.google.android.material.motion.runtime.PlanFeatures.BasePlan;
-import com.google.android.material.motion.runtime.PlanFeatures.NamedPlan;
+import com.google.android.material.motion.runtime.Plan;
 
 /**
  * A performer that uses {@link GestureRecognizer}s to drag, scale, and rotate a view.
  */
-public class GesturePerformer extends Performer
-  implements ContinuousPerforming, NamedPlanPerforming {
+public class GesturePerformer extends NamedPerformer<View> implements ContinuousPerforming {
 
   /* Temporary variables. */
   private final float[] array = new float[2];
@@ -60,7 +58,7 @@ public class GesturePerformer extends Performer
   }
 
   @Override
-  public void addPlan(BasePlan plan) {
+  public void addPlan(Plan<View> plan) {
     if (plan instanceof Draggable) {
       addDraggable((Draggable) plan);
     } else if (plan instanceof Pinchable) {
@@ -73,7 +71,7 @@ public class GesturePerformer extends Performer
   }
 
   @Override
-  public void addPlan(NamedPlan plan, String name) {
+  public void addPlan(NamedPlan<View> plan, String name) {
     addPlan(plan);
   }
 

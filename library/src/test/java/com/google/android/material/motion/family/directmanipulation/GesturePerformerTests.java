@@ -23,10 +23,9 @@ import android.view.View;
 import com.google.android.material.motion.gestures.DragGestureRecognizer;
 import com.google.android.material.motion.gestures.RotateGestureRecognizer;
 import com.google.android.material.motion.gestures.ScaleGestureRecognizer;
-import com.google.android.material.motion.runtime.Performer;
-import com.google.android.material.motion.runtime.PerformerFeatures;
-import com.google.android.material.motion.runtime.Plan;
 import com.google.android.material.motion.runtime.MotionRuntime;
+import com.google.android.material.motion.runtime.Performer;
+import com.google.android.material.motion.runtime.Plan;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -126,12 +125,12 @@ public class GesturePerformerTests {
 
   @Test(expected = IllegalArgumentException.class)
   public void addingUnsupportedPlanCrashes() {
-    Performer performer = new GesturePerformer();
+    GesturePerformer performer = new GesturePerformer();
     performer.initialize(target);
 
-    performer.addPlan(new Plan() {
+    performer.addPlan(new Plan<View>() {
       @Override
-      public Class<? extends PerformerFeatures.BasePerforming> getPerformerClass() {
+      public Class<? extends Performer<View>> getPerformerClass() {
         return GesturePerformer.class;
       }
     });
