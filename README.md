@@ -24,7 +24,7 @@ that can describe behavior of a target view. If the plan's associated gesture re
 associated with a view then the gesture recognizer will be added to the target view.
 
 Learn more about the APIs defined in the library by reading our
-[technical documentation](https://jitpack.io/com/github/material-motion/family-direct-manipulation-android/1.1.0/javadoc/) and our
+[technical documentation](https://jitpack.io/com/github/material-motion/family-direct-manipulation-android/1.2.0/javadoc/) and our
 [Starmap](https://material-motion.github.io/material-motion/starmap/).
 
 ## Installation
@@ -46,7 +46,7 @@ Take care to occasionally [check for updates](https://github.com/ben-manes/gradl
 
 ```gradle
 dependencies {
-    compile 'com.github.material-motion:family-direct-manipulation-android:1.1.0'
+    compile 'com.github.material-motion:family-direct-manipulation-android:1.2.0'
 }
 ```
 
