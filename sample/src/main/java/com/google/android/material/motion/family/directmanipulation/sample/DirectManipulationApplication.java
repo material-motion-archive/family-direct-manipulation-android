@@ -27,6 +27,6 @@ public class DirectManipulationApplication extends Application {
   @Override
   public void onCreate() {
     super.onCreate();
-    RemixerInitialization.initRemixer(Remixer.getInstance(), this);
+    RemixerInitialization.initRemixer(this);
   }
 }
